@@ -23,6 +23,11 @@ const Dashboard = () => {
                 </CustomNavLink>
               </li>
               <li>
+                <CustomNavLink to="/dashboard/addClinic">
+              Add Clinic
+                </CustomNavLink>
+              </li>
+              <li>
                 <CustomNavLink to="/dashboard/AddDoctor">
                Add a Doctor
                 </CustomNavLink>

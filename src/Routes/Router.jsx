@@ -12,6 +12,7 @@ import AdminHome from "@/Pages/Dashboard/AdminDashboard/AdminHome/AdminHome";
 import AllUser from "@/Pages/Dashboard/AdminDashboard/AllUsers/AllUser";
 import AddDoctor from "@/Pages/Dashboard/AdminDashboard/AddDoctor/AddDoctor";
 import ManageDoctors from "@/Pages/Dashboard/AdminDashboard/ManageDoctors/ManageDoctors";
+import AddClinic from "@/Pages/Dashboard/AdminDashboard/AddClinic/AddClinic";
 export const router = createBrowserRouter([
     {
         path:"/",
@@ -61,6 +62,9 @@ export const router = createBrowserRouter([
             {
                 path:'manageDoctors',
                 element:<ManageDoctors/>
+            },{
+                path:'addClinic',
+                element:<AddClinic/>
             }
         ]
 
