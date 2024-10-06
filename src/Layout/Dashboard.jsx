@@ -12,31 +12,35 @@ const Dashboard = () => {
       </div>
       <div className="max-w-screen-xl mx-auto ">
       <div className="flex">
-        <div className="w-64 min-h-screen bg-cyan-500">
-          <ul className="menu  p-4">
+        <div className="w-64 min-h-screen bg-green-700">
+          <ul className="menu  p-5">
             {isAdmin ? (
               <>
               
               <li>
                 <CustomNavLink to="/dashboard/allUsers">
-               All Users
+               Users
                 </CustomNavLink>
               </li>
               <li>
-                <CustomNavLink to="/dashboard/addClinic">
-              Add Clinic
+                <CustomNavLink to="/dashboard/clinics">
+               Clinic
+                </CustomNavLink>
+                <CustomNavLink to="/dashboard/admin">
+               Admin
                 </CustomNavLink>
               </li>
               <li>
-                <CustomNavLink to="/dashboard/AddDoctor">
-               Add a Doctor
+                <CustomNavLink to="/dashboard/dashboardDoctor">
+              Doctor
                 </CustomNavLink>
               </li>
               <li>
-                <CustomNavLink to="/dashboard/manageDoctors">
-               Mange Doctors
+                <CustomNavLink to="/dashboard/medicine">
+              Medicine
                 </CustomNavLink>
               </li>
+             
               <li>
                 <CustomNavLink to="/dashboard/adminHome">
                 Home

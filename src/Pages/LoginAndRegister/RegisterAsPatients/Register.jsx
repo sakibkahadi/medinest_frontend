@@ -62,7 +62,7 @@ const Register = () => {
               const userInfo = { name, email, password, image };
               console.log(userInfo);
               axios
-                .post("http://localhost:5000/api/users/create-admin", userInfo)
+                .post("http://localhost:5000/api/users/create-patient", userInfo)
                 .then((res) => {
                  console.log(res)
                   

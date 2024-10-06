@@ -22,10 +22,10 @@ const ClinicMap = ({ onLocationSelect }) => {
         state: address.state || '',
         postalCode: address.postcode || '',
         country: address.country || '',
-        coordinates: {
+        
           latitude: lat,
           longitude: lon,
-        },
+       
       };
       
       setLocationData(locationDetails); // Store the location details in state

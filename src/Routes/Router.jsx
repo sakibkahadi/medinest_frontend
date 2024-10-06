@@ -13,6 +13,17 @@ import AllUser from "@/Pages/Dashboard/AdminDashboard/AllUsers/AllUser";
 import AddDoctor from "@/Pages/Dashboard/AdminDashboard/AddDoctor/AddDoctor";
 import ManageDoctors from "@/Pages/Dashboard/AdminDashboard/ManageDoctors/ManageDoctors";
 import AddClinic from "@/Pages/Dashboard/AdminDashboard/AddClinic/AddClinic";
+import Appointment from "@/Pages/Home/Appointment/Appointment";
+import Doctor from "@/Pages/Dashboard/AdminDashboard/AddDoctor/Doctor";
+import DoctorList from "@/Pages/Dashboard/AdminDashboard/AddDoctor/DoctorList";
+import Clinic from "@/Pages/Dashboard/AdminDashboard/AddClinic/Clinic";
+import ClinicList from "@/Pages/Dashboard/AdminDashboard/AddClinic/ClinicList";
+import Admin from "@/Pages/Dashboard/AdminDashboard/AddAdmin/Admin";
+import AdminList from "@/Pages/Dashboard/AdminDashboard/AddAdmin/AdminList";
+import AddAdmin from "@/Pages/Dashboard/AdminDashboard/AddAdmin/AddAdmin";
+import Medicine from "@/Pages/Dashboard/AdminDashboard/AddMedicine/Medicine";
+import MedicineList from "@/Pages/Dashboard/AdminDashboard/AddMedicine/MedicineList";
+import AddMedicine from "@/Pages/Dashboard/AdminDashboard/AddMedicine/AddMedicine";
 export const router = createBrowserRouter([
     {
         path:"/",
@@ -28,7 +39,10 @@ export const router = createBrowserRouter([
                 element:
                 <PrivateRoute><Ambulances></Ambulances></PrivateRoute>,
                 
-            },
+            },{
+                path:"appointment",
+                element:<Appointment/>
+            }
             
         ]
     },
@@ -56,16 +70,80 @@ export const router = createBrowserRouter([
                 path:'allUsers',
                 element:<AllUser></AllUser>
             },{
-                path:'addDoctor',
-                element:<AddDoctor/>
+                path:'dashboardDoctor',
+                element:<Doctor/>,
+                children:[
+                    {
+                        path:"",
+                        element:<DoctorList/>
+                    },
+                    {
+                        path:"doctorList",
+                        element:<DoctorList/>
+                    },
+                    {
+                        path:"addDoctor",
+                        element:<AddDoctor/>
+                    },
+                ]
+            }
+            ,{
+                path:'clinics',
+                element:<Clinic/>,
+                children:[
+                    {
+                        path:"",
+                        element:<ClinicList/>
+                    },
+                    {
+                        path:"clinicList",
+                        element:<ClinicList/>
+                    },
+                    {
+                        path:"addClinic",
+                        element:<AddClinic/>
+                    },
+                ]
+            }
+            ,{
+                path:'admin',
+                element:<Admin/>,
+                children:[
+                    {
+                        path:"",
+                        element:<AdminList/>
+                    },
+                    {
+                        path:"adminList",
+                        element:<AdminList/>,
+                       
+                    },
+                    {
+                        path:"addAdmin",
+                        element:<AddAdmin/>
+                    },
+                ]
             },
             {
-                path:'manageDoctors',
-                element:<ManageDoctors/>
-            },{
-                path:'addClinic',
-                element:<AddClinic/>
-            }
+                path:'medicine',
+                element:<Medicine/>,
+                children:[
+                    {
+                        path:"",
+                        element:<MedicineList/>
+                    },
+                    {
+                        path:"medicineList",
+                        element:<MedicineList/>,
+                       
+                    },
+                    {
+                        path:"addMedicine",
+                        element:<AddMedicine/>
+                    },
+                ]
+            },
+            
         ]
 
     },

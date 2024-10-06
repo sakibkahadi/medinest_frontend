@@ -17,6 +17,7 @@ const useAxiosSecure = ()=>{
         const token = localStorage.getItem('access-token')
         // console.log('requested stopped by interceptors before adding token', token)
         config.headers.authorization = `Bearer ${token}`;
+        // console.log(config.headers.authorization)
         return config
 
     },function(error){
@@ -31,7 +32,9 @@ const useAxiosSecure = ()=>{
         const status= error.response.status
         // console.log('status error in the interceptor ',error)
         // for 401 and 403 logout the use and more the user to the login
-        if(status ===401 || status===403 || status ===400){
+        console.log(status)
+        if(status ===401 || status===403 ){
+        // if(status ===401 || status===403 || status ===400){
             await logOut();
             navigate('/login')
         }

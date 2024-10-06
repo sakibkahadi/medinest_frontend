@@ -1,16 +1,19 @@
 import CustomTitle from "@/components/smallComponents/CustomTitle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import Select from "react-select";
+
 import WebsiteTitle from "@/customComponents/iconComponents/WebsiteTitle";
 import { useFormik } from "formik";
-import { customStyles } from "../AddDoctor/customStyle";
+
 import ClinicMap from "./ClinicMap";
 import { useState } from "react";
+import useAxiosSecure from "@/Hooks/useAxiosSecure";
+
 
 const AddClinic = () => {
-  const [selectedLocation, setSelectedLocation] = useState(null); // State to store selected location
-
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [err,setErr] = useState("")
+const axiosSecure = useAxiosSecure()
   const formik = useFormik({
     initialValues: {
       clinicName: "",
@@ -38,6 +41,8 @@ const AddClinic = () => {
       return errors;
     },
     onSubmit: async ({ clinicName, phoneNumber, email, website }) => {
+      phoneNumber = '+880'+phoneNumber
+     
       const info = {
         clinicName,
         contact:{
@@ -46,9 +51,17 @@ const AddClinic = () => {
             website,
         },
        
-       location: selectedLocation, // Add the selected location to form data
+       location: selectedLocation, 
+       
       };
-      console.log(info);
+      console.log(info)
+     try{
+      axiosSecure.post('/clinics', info)
+      .then(res=>console.log(res.data.data))
+      .catch((err)=>setErr(err.response.data.message))
+     }catch(err){
+      setErr(err)
+     }
     },
   });
 
@@ -58,7 +71,7 @@ const AddClinic = () => {
       <div>
         <Card className="border-none">
           <CardHeader className="text-center">
-            <CustomTitle heading="Sign in to Med Nest"></CustomTitle>
+            <CustomTitle heading="Clinic Info"></CustomTitle>
           </CardHeader>
           <div>
             <CardContent>
@@ -188,6 +201,10 @@ const AddClinic = () => {
                   {formik.touched.address && formik.errors.address && (
                     <div className="text-red-500">{formik.errors.address}</div>
                   )}
+
+                  {
+                    err && <p className="text-red-600">{err}</p>
+                  }
 
                   {/* submit */}
                   <div className="form-control mt-4">
