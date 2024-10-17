@@ -15,6 +15,7 @@ const Doctor = () => {
             <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white ">
             <samp><FaPlus /></samp><Link to="addDoctor"> Add Doctor</Link>
             </div>
+            
            
           </div>
         </div>

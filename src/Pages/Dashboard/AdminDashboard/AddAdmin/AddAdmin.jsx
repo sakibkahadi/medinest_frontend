@@ -8,54 +8,36 @@ import useAxiosSecure from "@/Hooks/useAxiosSecure";
 import useAxiosPublic from "@/Hooks/useAxiosPublic";
 import { customStyles } from "../AddDoctor/customStyle";
 import Select from "react-select";
-const cloudName = 'doocqhmpu';
-const uploadPreset = 'sakibkk';
+import useClinic from "@/Hooks/useClinic";
+import { uploadImage } from "@/lib/imageUpload";
+
 
 const AddAdmin = () => {
   const [err, setErr] = useState("");
   const axiosSecure = useAxiosSecure();
 const axiosPublic = useAxiosPublic()
 const [allClinic, setAllClinic] = useState([])
-// upload image 
-  const uploadImage = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', uploadPreset);
+const [loading, setLoading] = useState(false)
+const [fetch] = useClinic()
 
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        return data.secure_url;
-      } else {
-        throw new Error('Failed to upload image');
-      }
-    } catch (err) {
-      console.error('Error uploading image:', err);
-      return null;
-    }
-  };
 // fetch clinic
-useEffect(() => {
-    try {
-      axiosPublic
-        .get("/clinics")
-        .then((res) => {
-          const options = res.data.data.map((clinic) => ({
-            value: clinic._id,
-            label: `${clinic.clinicName}`,
-          }));
-          setAllClinic(options);
-        
-        })
-        .catch((err) => console.log(err.response.data.message));
-    } catch (err) {
-      console.log(err.response.data.message);
-    }
+  // Fetch companies for the select options
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await axiosPublic.get("/clinics");
+        const options = Array.isArray(response.data.data)
+          ? response.data.data.map((clinic) => ({
+              value: clinic._id,
+              label: clinic.clinicName, // Use a more user-friendly label if available
+            }))
+          : [];
+        setAllClinic(options);
+      } catch (err) {
+        console.error("Error fetching companies:", err.response?.data?.message || err);
+      }
+    };
+    fetchCompanies();
   }, [axiosPublic]);
 
   const formik = useFormik({
@@ -94,7 +76,9 @@ useEffect(() => {
       // Upload image to Cloudinary
       let imageUrl = null;
       if (image) {
+        setLoading(true)
         imageUrl = await uploadImage(image);
+        setLoading(false)
         if (!imageUrl) {
           setErr("Image upload failed");
           return;
@@ -113,8 +97,11 @@ console.log(info)
 
 try{
     axiosSecure.post('/users/create-admin', info)
-    .then(res=>console.log(res.data.data))
-    .catch((err)=>setErr(err.response.data.message))
+    .then(res=>{if(res.data.data){
+      setErr("")
+      
+    }})
+    .catch((err)=>setErr(err.response.data.errorSources[0].message    ))
    }catch(err){
     setErr(err=>setErr(err.response.data.message))
    }
@@ -130,26 +117,21 @@ try{
             <CustomTitle heading="Sign in to Med Nest" />
           </CardHeader>
           <div>
-            <CardContent>
+            {!loading? <CardContent>
               <form onSubmit={formik.handleSubmit}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:grid-cols-2">
                   {/* Select Clinic*/}
-                <div className="form-control mb-4 space-y-2">
+                <div className="form-control mb-4 space-y-3">
                   <label className="font-semibold" htmlFor="clinicName">
                     clinicName
                   </label>
                   <Select
                     id="clinicName"
                     name="clinicName"
-                    onChange={(option) =>
-                     { formik.setFieldValue("clinicName", option); setAllClinic(option)
-
-                        
-                     } 
-                      
-                    }
+                   
+                    onChange={(option) => formik.setFieldValue("clinicName", option)}
                     value={formik.values.clinicName}
-                    options={allClinic}
+                    options={Array.isArray(allClinic) ? allClinic : []}
                     styles={customStyles}
                   />
                   {formik.touched.clinicName && formik.errors.clinicName && (
@@ -256,14 +238,14 @@ try{
                   </div>
                 </div>
 
-                {err && <p className="text-red-600">{err}</p>}
+                {err ? <p className="text-red-600">{err}</p>: ""}
 
                 {/* Submit */}
                 <div className="form-control mt-4">
                   <Button type="submit">Add Admin</Button>
                 </div>
               </form>
-            </CardContent>
+            </CardContent> : <div>loading ....</div>}
           </div>
         </Card>
       </div>

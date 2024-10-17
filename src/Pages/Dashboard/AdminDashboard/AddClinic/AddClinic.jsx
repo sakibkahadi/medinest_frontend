@@ -57,10 +57,12 @@ const axiosSecure = useAxiosSecure()
       console.log(info)
      try{
       axiosSecure.post('/clinics', info)
-      .then(res=>console.log(res.data.data))
-      .catch((err)=>setErr(err.response.data.message))
+      .then(res=>{if(res.data.data){
+        setErr("")
+      }})
+      .catch((err)=>setErr(err.response.data.errorSources[0].message))
      }catch(err){
-      setErr(err)
+      console.log(err)
      }
     },
   });

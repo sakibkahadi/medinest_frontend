@@ -19,7 +19,7 @@ import useAxiosPublic from "@/Hooks/useAxiosPublic";
 const Login = () => {
   
 const [serverError, setServerError] = useState("")
-  const {signIn} = useContext(AuthContext)
+  const {signIn, error} = useContext(AuthContext)
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from?.pathname || "/";
@@ -43,30 +43,16 @@ const axiosPublic = useAxiosPublic()
       return errors;
     },
     onSubmit: async ({email, password}) => {
-     
-      try{
-        const userInfo = {email,password}
-        axiosPublic.post('/users/signIn', userInfo)
-        .then(res=>{
-          const tokenData = res.data.token
-          const userId = res.data.data._id
-          console.log(userId)
-          if(tokenData){
-          localStorage.setItem('access-token', tokenData)
-          localStorage.setItem('userId', userId)
-          signIn(email,password, userId)
-          .then(res=>{
-            console.log(res)
-            navigate(from, {replace:true})
-          })
+      signIn(email,password,  )
+      .then(res=>{
+        if(res){
+       
+          navigate(from, {replace:true})
         }
-      }
       
-      ).catch(error=>setServerError(error.response.data.message))
-
-      }catch(err){
-        console.log(err)
-      }
+        
+      })
+    
       
     },
   });
@@ -136,7 +122,7 @@ const axiosPublic = useAxiosPublic()
                     )}
                   </div>
                   {
-                    serverError && <div className="text-red-500 mb-4">{serverError}</div>
+                    serverError || error && <div className="text-red-500 mb-4">{error}</div>
                   }
 
                   <Button type="submit">Log in</Button>

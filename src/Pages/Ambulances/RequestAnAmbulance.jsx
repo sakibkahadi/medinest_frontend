@@ -1,23 +1,25 @@
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ReactDatePicker from "react-datepicker";
 import Select from "react-select";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { FaCalendarAlt } from "react-icons/fa";
 import 'react-phone-number-input/style.css';
-import PhoneInput from 'react-phone-number-input';
-import { isValidPhoneNumber } from 'react-phone-number-input';
-import { LuBadgeAlert } from "react-icons/lu";
-import axios from "axios";
+
+
 import Swal from "sweetalert2";
 import 'daisyui/dist/full.css';
 import { Button } from "../../components/ui/button";
 
 import useAxiosPublic from "@/Hooks/useAxiosPublic";
+import { customStyles } from "../Dashboard/AdminDashboard/AddDoctor/customStyle";
+import { AuthContext } from "@/providers/AuthProvider";
+import { LuBadgeAlert } from "react-icons/lu";
 const RequestAnAmbulance = () => {
   const [startDate, setStartDate] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [error,SetError] = useState("");
+  const {userData} = useContext(AuthContext)
   const [ambulanceTypes, setAmbulanceTypes] = useState([]);
   const axiosPublic = useAxiosPublic()
   useEffect(() => {
@@ -40,7 +42,7 @@ const RequestAnAmbulance = () => {
       ambulances: null,
       date: null,
       name: '',
-      phone: ''
+      phoneNumber: ''
     },
     validate: (values) => {
       const errors = {};
@@ -50,34 +52,52 @@ const RequestAnAmbulance = () => {
       if (!values.ambulances) errors.ambulances = "Required";
       if (!values.date) errors.date = "Required";
       if (!values.name) errors.name = "Required";
-      if (!values.phone || !isValidPhoneNumber(values.phone)) errors.phone = "Invalid phone number";
+      if (!values.phoneNumber) errors.phoneNumber = "Invalid phoneNumber number";
 
       return errors;
     },
     onSubmit: async (values) => {
-      const formattedValues = {
+       
+      const schedule =format(values.date, "dd/MM/yyyy HH:mm")
+      const patient =userData?._id
+      const date= schedule.slice(0,10)
+      const timeSlot = schedule.slice(11,16)
+      const phoneNumber = '+880'+values.phoneNumber
+      const info = {
         from:values.from,
         destination: values.destination,
         ambulance :values.ambulances.value,
-        date: values.date ? format(values.date, "dd/MM/yyyy HH:mm") : null,
+        date: date, timeSlot:timeSlot,
         name:values.name,
-        number: values.phone
+        phoneNumber: phoneNumber,
+        patient:patient
       };
-
-      const res = await axios.post('http://localhost:5000/api//requestedAmbulance', formattedValues)
-     
-      if(res.data.success){
-        formik.resetForm();
-        setStartDate(null);
-        setPhoneNumber("");
-        Swal.fire({
-          position:"center",
-          icon:"success",
-          title: `Requested Successfully`,
-          showConfirmButton:false,
-          timer: 1500
-        });
+// console.log(info)
+      try{
+        axiosPublic.post('/requestedAmbulances', info)
+        .then(res=>{
+          if(res.data.success){
+            SetError("")
+            console.log('requested')
+          }
+        }).catch(err=>SetError(err.response.data.errorSources[0].message))
+      }catch(err){
+        SetError(err)
       }
+      // const res = await axios.post('http://localhost:5000/api//requestedAmbulance', formattedValues)
+     
+      // if(res.data.success){
+      //   formik.resetForm();
+      //   setStartDate(null);
+      //   setPhoneNumber("");
+      //   Swal.fire({
+      //     position:"center",
+      //     icon:"success",
+      //     title: `Requested Successfully`,
+      //     showConfirmButton:false,
+      //     timer: 1500
+      //   });
+      // }
     },
   });
 
@@ -95,12 +115,12 @@ const RequestAnAmbulance = () => {
           </label>
           <input
             id="from"
-            name="from"
+            name="from" 
             type="text"
             onChange={formik.handleChange}
             value={formik.values.from}
             placeholder="Example- Dhaka"
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
           />
           {formik.errors.from && formik.touched.from && (
             <div className="text-red-500">Please enter a valid location</div>
@@ -119,7 +139,7 @@ const RequestAnAmbulance = () => {
             onChange={formik.handleChange}
             value={formik.values.destination}
             placeholder="Example- Dhaka"
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
           />
           {formik.errors.destination && formik.touched.destination && (
             <div className="text-red-500">Please enter a valid location</div>
@@ -137,7 +157,7 @@ const RequestAnAmbulance = () => {
             onChange={(selectedOption) => formik.setFieldValue("ambulances", selectedOption)}
             value={formik.values.ambulances}
             options={ambulanceTypes}
-            className="w-full"
+            styles={customStyles}
           />
           {formik.errors.ambulances && formik.touched.ambulances && (
             <div className="text-red-500">Ambulance Type is required</div>
@@ -164,7 +184,7 @@ const RequestAnAmbulance = () => {
               timeCaption="time"
               minDate={new Date()}
               filterDate={(date) => date.getDay() !== 6 && date.getDay() !== 0}
-              className="w-full p-2 pr-10 border border-gray-300 rounded-md"
+              className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
             />
             <FaCalendarAlt className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
@@ -185,35 +205,49 @@ const RequestAnAmbulance = () => {
             onChange={formik.handleChange}
             value={formik.values.name}
             placeholder="Your Name"
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
           />
           {formik.errors.name && formik.touched.name && (
             <div className="text-red-500">Your Name is required</div>
           )}
         </div>
 
-        {/* Phone number */}
-        <div className="form-control mb-4">
-          <label className="mb-2" htmlFor="phone">
-            Phone Number
-          </label>
-          <PhoneInput
-            id="phone"
-            name="phone"
-            international
-            countryCallingCodeEditable={false}
-            defaultCountry="BD"
-            value={phoneNumber}
-            onChange={(value) => {
-              setPhoneNumber(value);
-              formik.setFieldValue("phone", value);
-            }}
-            className="w-full p-2 border border-gray-300 rounded-md  !outline-none !focus:ring-0"
-          />
-          {formik.errors.phone && formik.touched.phone && (
-            <div className="text-red-500">Invalid phone number</div>
-          )}
-        </div>
+        {/* Phone Number */}
+        <div className="form-control mb-4 space-y-3">
+                    <label className="font-semibold" htmlFor="phoneNumber">
+                      Phone Number
+                    </label>
+                    <div
+                      className={`flex bg-slate-200 items-center border rounded-md ${
+                        formik.errors.phoneNumber && formik.touched.phoneNumber
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } focus-within:border-blue-300`}
+                    >
+                      <span className="flex justify-center gap-2 items-center bg-gray-200 p-2 rounded-l-md">
+                        <img
+                          src="https://flagcdn.com/w20/bd.png"
+                          alt="BD flag"
+                        />
+                        <span>+880</span>
+                      </span>
+                      <input
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        type="text"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.phoneNumber}
+                        placeholder="Enter your number"
+                        className="px-1 text-sm flex-1 w-full rounded-r-md bg-slate-200 outline-none"
+                      />
+                    </div>
+                    {formik.touched.phoneNumber && formik.errors.phoneNumber && (
+                      <div className="text-red-500">
+                        {formik.errors.phoneNumber}
+                      </div>
+                    )}
+                  </div>
 
         <Button type="submit" >
           Send Ambulance Request
@@ -222,6 +256,9 @@ const RequestAnAmbulance = () => {
         "> <LuBadgeAlert className="h-[30px] w-[30px]" /><p>One of our agents will get back to you within 30 minutes with the update of the ambulance</p></div>
         
       </form>
+      {
+        error && <div className="text-red-700">{error}</div>
+      }
      
     </div>
   );

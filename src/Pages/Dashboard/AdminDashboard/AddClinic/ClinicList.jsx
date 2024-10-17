@@ -1,9 +1,26 @@
 import NoData from "@/customComponents/iconComponents/NoData";
+import useAxiosSecure from "@/Hooks/useAxiosSecure";
 import useClinic from "@/Hooks/useClinic";
+import { MdDelete } from "react-icons/md";
 
 const ClinicList = () => {
   const [clinics, loading, refetch] = useClinic();
-  
+  const axiosSecure = useAxiosSecure()
+  const handleDelete = (id)=>{
+    try{
+      axiosSecure.delete(`/clinics/${id}`)
+      .then(res=>{
+        if(res.data.data){
+          refetch()
+        }
+      })
+      .catch(err=>{
+        console.log(err)
+      })
+    }catch(err){
+      console.log(err)
+    }
+  }
   return (
     <div className="p-6">
       <div className=" border-2 border-stone-400 ">
@@ -44,6 +61,7 @@ const ClinicList = () => {
                       <td>
                         {`${clinic.location?.postalCode}  ${clinic?.location?.street}   ${clinic.location?.city}, ${clinic.location?.country} `}
                       </td>
+                      <td className="text-red-600 "><MdDelete onClick={()=>handleDelete(clinic?._id)} size={20}/></td>
                     </tr>
                   ))}
                 </tbody>

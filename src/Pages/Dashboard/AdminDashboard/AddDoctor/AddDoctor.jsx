@@ -5,58 +5,94 @@ import Select from "react-select";
 import WebsiteTitle from "@/customComponents/iconComponents/WebsiteTitle";
 import { useFormik } from "formik";
 import { customStyles } from "./customStyle";
+import { generateTimeOptions } from "@/lib/generateTime";
+import useAxiosPublic from "@/Hooks/useAxiosPublic";
+import { useEffect, useState } from "react";
+import { uploadImage } from "@/lib/imageUpload";
+import useAxiosSecure from "@/Hooks/useAxiosSecure";
 
 const AddDoctor = () => {
-  const options = [
-    { value: "cardiology", label: "Cardiology" },
-    { value: "dermatology", label: "Dermatology" },
-    { value: "neurology", label: "Neurology" },
-    { value: "endocrinology", label: "Endocrinology" },
+  const axiosPublic = useAxiosPublic();
+  const timeOptions = generateTimeOptions();
+  const [allDepartment, setAllDepartment] = useState("");
+  const [error, setError] = useState("");
+  const [clinic, setClinic] = useState("");
+  const [loading, setLoading] = useState(false)
+const axiosSecure = useAxiosSecure()
+  const genderOptions = [
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "others", label: "Others" },
   ];
+  //fetch clinicData
+  useEffect(() => {
+    axiosPublic
+      .get(`/clinics/${localStorage.getItem("userId")}/admins`)
+      .then((res) => setClinic(res.data.data._id))
+      .catch((err) => setError(err.response.data));
+  }, [axiosPublic]);
+  // Fetch departments for the select options
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await axiosPublic.get("/departments");
+        const options = Array.isArray(response.data.data)
+          ? response.data.data.map((department) => ({
+              value: department._id,
+              label: department.departmentName, // Use a more user-friendly label if available
+            }))
+          : [];
+        setAllDepartment(options);
+      } catch (err) {
+        console.error(
+          "Error fetching departments:",
+          err.response?.data?.message || err
+        );
+      }
+    };
+    fetchDepartments();
+  }, [axiosPublic]);
 
   const formik = useFormik({
     initialValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
+      gender: "",
       phoneNumber: "",
       email: "",
-      website: "",
-      address: "",
-      specialization: "",
+
+      department: "",
       experience: "",
-      feesPerConsultation:0,
-      startTime: '',
-      endTime:''
+      feesPerConsultation: "",
+      startTime: "",
+      endTime: "",
+      doctorImage: "",
     },
     validate: (values) => {
       const errors = {};
 
-      if (!values.firstName) {
-        errors.firstName = "first name is Required";
+      if (!values.name) {
+        errors.name = " name is required";
       }
-      if (!values.lastName) {
-        errors.lastName = "middle name is Required";
-      }
+     if(!values.gender){
+      errors.gender = "Gender is required";
+     }
       if (!values.phoneNumber) {
-        errors.phoneNumber = "phone Number is Required";
-      } else if (!/^[0-9]{10}$/.test(values.phoneNumber)) {
-        errors.phoneNumber = "Enter valid phone number";
+        errors.phoneNumber = "Phone number is required";
       }
       if (!values.email) {
         errors.email = "Email is required";
       }
-
-      if (!values.address) {
-        errors.address = "address is required";
+      if(!values.doctorImage){
+        errors.doctorImage = "image is required";
       }
-      if (!values.specialization) {
-        errors.specialization = "specialization is required";
+      if (!values.department) {
+        errors.department = "Department is required";
       }
       if (!values.experience) {
-        errors.experience = "experience is required";
+        errors.experience = "Experience is required";
       }
       if (!values.feesPerConsultation) {
-        errors.feesPerConsultation = "feesPerConsultation is required";
+        errors.feesPerConsultation = "Fees per consultation is required";
       }
       if (!values.startTime) {
         errors.startTime = 'Start time is required';
@@ -70,328 +106,352 @@ const AddDoctor = () => {
       return errors;
     },
     onSubmit: async ({
-      firstName,
-      lastName,
+      name,
+      gender,
       phoneNumber,
       email,
-      website,
-      address,
-      specialization,
-      experience, feesPerConsultation, startTime, endTime
+
+      department,
+      experience,
+      feesPerConsultation,
+      startTime,
+      endTime,
+      doctorImage,
     }) => {
-      const info = {
-        firstName: firstName,
-        lastName: lastName,
-        phoneNumber: phoneNumber,
-        email: email,
-        website: website,
-        address: address,
-        specialization: specialization.value,
-        experience: experience, feesPerConsultation: feesPerConsultation
-        ,timing: {
-          startTime:startTime, endTime:endTime
+      console.log("hi");
+      let imageUrl = "";
+
+      if (doctorImage) {
+        setLoading(true)
+        imageUrl = await uploadImage(doctorImage);
+setLoading(false)
+        if (!imageUrl) {
+          console.log("Image upload failed");
+          return;
         }
+      }
+      phoneNumber = `+880${phoneNumber}`
+      const info = {
+        image: imageUrl,
+        clinicName: clinic,
+        name,
+        gender,
+        phoneNumber,
+        email,
+
+        department: department.value,
+        experience,
+       consultationFee: feesPerConsultation,
+        startTime,
+        endTime,
       };
-      console.log(info);
+      console.log(info)
+     try{
+      axiosSecure.post('/users/create-doctor', info)
+      .then(res=>{
+        if(res.data.data){
+          setError("")
+        }
+
+      }).catch(err=>setError(err.response.data.errorSources[0].message))
+     }catch(err){
+      setError(err)
+     }
+
+      // Here, you can send 'info' to your backend
     },
   });
+  // Function to handle numeric input
+  const handleNumericInput = (e) => {
+    const { name, value } = e.target;
+
+    // Only allow numbers and decimal points
+    const isValidNumber = /^[0-9]*\.?[0-9]*$/.test(value);
+
+    if (isValidNumber) {
+      formik.setFieldValue(name, value);
+    }
+  };
   return (
     <div>
-      <WebsiteTitle title="Add Doctor"></WebsiteTitle>
+      <WebsiteTitle title="Add Doctor" />
       <div>
         <Card className="border-none">
           <CardHeader className="text-center">
-            <CustomTitle heading="Sign in to Med Nest"></CustomTitle>
+            <CustomTitle heading="Add Doctor" />
           </CardHeader>
-          <div>
-            <CardContent>
-              <form onSubmit={formik.handleSubmit}>
-                {/* personal details */}
-                <div className="">
-                  <h1 className="font-semibold text-xl mb-5">
-                    Personal Details :{" "}
-                  </h1>
+          <CardContent>
+           {
+            !loading ?  <form onSubmit={formik.handleSubmit}>
+            {/* Personal details */}
+            <div>
+              <h1 className="font-semibold text-xl mb-5">
+                Personal Details:
+              </h1>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:grid-cols-2">
+                {/* First Name */}
+                <div className="form-control mb-4 space-y-3">
+                  <label className="font-semibold" htmlFor="name">
+                    Doctor Name
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.name}
+                    placeholder="Enter doctor name"
+                    className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
+                  />
+                  {formik.touched.name && formik.errors.name && (
+                    <div className="text-red-500">{formik.errors.name}</div>
+                  )}
+                </div>
+                {/* Email */}
+                <div className="form-control mb-4 space-y-3">
+                  <label className="font-semibold" htmlFor="email">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.email}
+                    placeholder="Enter doctor email"
+                    className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
+                  />
+                  {formik.touched.email && formik.errors.email && (
+                    <div className="text-red-500">{formik.errors.email}</div>
+                  )}
+                </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:grid-cols-2">
-                    {/* 1st row */}
-
-                    {/* firstName */}
-                    <div className="form-control mb-4 space-y-3 ">
-                      <label className="font-semibold" htmlFor="firstName">
-                        First Name
-                      </label>
-                      <input
-                        id="firstName"
-                        name="firstName"
-                        type="text"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.firstName}
-                        placeholder="Enter your firstName"
-                        className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
+                {/* Image Upload */}
+                <div className="form-control mb-4 space-y-4">
+                  <label className="font-semibold" htmlFor="doctorImage">
+                    Image
+                  </label>
+                  <input
+                    id="doctorImage"
+                    name="doctorImage"
+                    type="file"
+                    onChange={(event) =>
+                      formik.setFieldValue(
+                        "doctorImage",
+                        event.currentTarget.files[0]
+                      )
+                    }
+                    className="file-input file-input-bordered file-input-primary w-full"
+                  />
+                   {formik.touched.doctorImage && formik.errors.doctorImage && (
+                    <div className="text-red-500">{formik.errors.doctorImage}</div>
+                  )}
+                </div>
+                {/* Phone Number */}
+                <div className="form-control mb-4 space-y-3">
+                  <label className="font-semibold" htmlFor="phoneNumber">
+                    Phone Number
+                  </label>
+                  <div
+                    className={`flex bg-slate-200 items-center border rounded-md ${
+                      formik.errors.phoneNumber && formik.touched.phoneNumber
+                        ? "border-slate-200"
+                        : "border-gray-300"
+                    } focus-within:border-blue-300 focus-within:border-1`}
+                  >
+                    <span className="flex justify-center gap-2 items-center bg-gray-200 p-2 rounded-l-md">
+                      <img
+                        className=""
+                        src="https://flagcdn.com/w20/bd.png"
+                        alt="BD flag"
                       />
-                      {formik.touched.firstName && formik.errors.firstName && (
-                        <div className="text-red-500">
-                          {formik.errors.firstName}
-                        </div>
-                      )}
-                    </div>
-                    {/* lastName */}
-                    <div className="form-control mb-4 space-y-3 ">
-                      <label className="font-semibold" htmlFor="lastName">
-                        Last Name
-                      </label>
-                      <input
-                        id="lastName"
-                        name="lastName"
-                        type="text"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.lastName}
-                        placeholder="Enter your lastName"
-                        className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
-                      />
-                      {formik.touched.lastName && formik.errors.lastName && (
-                        <div className="text-red-500">
-                          {formik.errors.lastName}
-                        </div>
-                      )}
-                    </div>
-                    {/* phoneNumber */}
-                    <div className="form-control mb-4 space-y-3 ">
-                      <label className="font-semibold" htmlFor="phoneNumber">
-                        phoneNumber
-                      </label>
-                      <div
-                        className={` flex bg-slate-200 items-center border rounded-md ${
-                          formik.errors.phoneNumber &&
-                          formik.touched.phoneNumber
-                            ? " border-slate-200"
-                            : "border-gray-300 "
-                        } focus-within:border-blue-300 focus-within:border-1`}
-                      >
-                        <span className="flex justify-center gap-2 items-center  bg-gray-200 p-2 rounded-l-md">
-                          <img
-                            className=""
-                            src="https://flagcdn.com/w20/bd.png"
-                            alt="BD flag"
-                          />
-                          <span>+880</span>
-                        </span>
-                        <input
-                          id="phoneNumber"
-                          name="phoneNumber"
-                          type="text"
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          value={formik.values.phoneNumber}
-                          placeholder="Enter your number"
-                          className="px-1 text-sm flex-1 h-full  w-full rounded-r-md bg-slate-200 outline-none focus:ring-0"
-                        />
+                      <span>+880</span>
+                    </span>
+                    <input
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      type="text"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.phoneNumber}
+                      placeholder="Enter your number"
+                      className="px-1 text-sm flex-1 h-full w-full rounded-r-md bg-slate-200 outline-none focus:ring-0"
+                    />
+                  </div>
+                  {formik.touched.phoneNumber &&
+                    formik.errors.phoneNumber && (
+                      <div className="text-red-500">
+                        {formik.errors.phoneNumber}
                       </div>
-                      {formik.touched.phoneNumber &&
-                        formik.errors.phoneNumber && (
-                          <div className="text-red-500">
-                            {formik.errors.phoneNumber}
-                          </div>
-                        )}
-                    </div>
+                    )}
+                </div>
+                {/* gender */}
+                <div className="form-control mb-4 space-y-3">
+                  <label className="font-semibold" htmlFor="gender">
+                    Gender
+                  </label>
+                  <Select
+                    id="gender"
+                    name="gender"
+                    options={genderOptions}
+                    onChange={(option) =>
+                      formik.setFieldValue("gender", option.value)
+                    }
+                    styles={customStyles}
+                    value={
+                      genderOptions.find(
+                        (option) => option.value === formik.values.gender
+                      ) || null
+                    }
+                    className="full"
+                  />
+                  {formik.touched.gender && formik.errors.gender && (
+                    <div className="text-red-500">{formik.errors.gender}</div>
+                  )}
+                </div>
+              </div>
+            </div>
 
-                    {/* second row */}
-
-                    {/* email */}
-                    <div className="form-control mb-4 space-y-3 ">
-                      <label className="font-semibold" htmlFor="email">
-                        Email
-                      </label>
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.email}
-                        placeholder="Enter your email"
-                        className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
-                      />
-                      {formik.touched.email && formik.errors.email && (
-                        <div className="text-red-500">
-                          {formik.errors.email}
-                        </div>
-                      )}
+            {/* Professional Details */}
+            <div>
+              <h1 className="font-semibold text-xl mb-5">
+                Professional Details:
+              </h1>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:grid-cols-2">
+                {/* Department */}
+                <div className="form-control mb-4 space-y-3">
+                  <label className="font-semibold" htmlFor="department">
+                    Department
+                  </label>
+                  <Select
+                    id="department"
+                    name="department"
+                    options={allDepartment}
+                    onChange={(option) =>
+                      formik.setFieldValue("department", option)
+                    }
+                    styles={customStyles}
+                    value={formik.values.department}
+                  />
+                  {formik.touched.department && formik.errors.department && (
+                    <div className="text-red-500">
+                      {formik.errors.department}
                     </div>
-                    {/* website */}
-                    <div className="form-control mb-4 space-y-3 ">
-                      <label className="font-semibold" htmlFor="email">
-                        Website (Optional)
-                      </label>
-                      <input
-                        id="website"
-                        name="website"
-                        type="text"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.website}
-                        placeholder="Enter your website"
-                        className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
-                      />
+                  )}
+                </div>
+                {/* Experience */}
+                <div className="form-control mb-4 space-y-3">
+                  <label className="font-semibold" htmlFor="experience">
+                    Experience (Years)
+                  </label>
+                  <input
+                    id="experience"
+                    name="experience"
+                    type="text"
+                    onChange={handleNumericInput}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.experience}
+                    placeholder="Enter experience"
+                    className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
+                  />
+                  {formik.touched.experience && formik.errors.experience && (
+                    <div className="text-red-500">
+                      {formik.errors.experience}
                     </div>
-                    {/* address */}
-                    <div className="form-control mb-4 space-y-3 ">
-                      <label className="font-semibold" htmlFor="address">
-                        Address
-                      </label>
-                      <input
-                        id="address"
-                        name="address"
-                        type="text"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.address}
-                        placeholder="Enter your address"
-                        className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
-                      />
-                      {formik.touched.address && formik.errors.address && (
-                        <div className="text-red-500">
-                          {formik.errors.address}
-                        </div>
-                      )}
+                  )}
+                </div>
+                {/* Fees Per Consultation */}
+                <div className="form-control mb-4 space-y-3">
+                  <label
+                    className="font-semibold"
+                    htmlFor="feesPerConsultation"
+                  >
+                    Fees Per Consultation
+                  </label>
+                  <input
+                    id="feesPerConsultation"
+                    name="feesPerConsultation"
+                    type="text"
+                    onChange={handleNumericInput}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.feesPerConsultation}
+                    placeholder="Enter fees"
+                    className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
+                  />
+                  {formik.touched.feesPerConsultation &&
+                    formik.errors.feesPerConsultation && (
+                      <div className="text-red-500">
+                        {formik.errors.feesPerConsultation}
+                      </div>
+                    )}
+                </div>
+                {/* Start Time */}
+                <div className="form-control mb-4 space-y-3">
+                  <label className="font-semibold" htmlFor="startTime">
+                    Start Time
+                  </label>
+                  <Select
+                    id="startTime"
+                    name="startTime"
+                    options={timeOptions}
+                    onChange={(option) =>
+                      formik.setFieldValue("startTime", option.value)
+                    }
+                    styles={customStyles}
+                    value={
+                      timeOptions.find(
+                        (option) => option.value === formik.values.startTime
+                      ) || null
+                    }
+                    className="full"
+                  />
+                  {formik.touched.startTime && formik.errors.startTime && (
+                    <div className="text-red-500">
+                      {formik.errors.startTime}
                     </div>
-                  </div>
+                  )}
                 </div>
 
-                {/* professional Details */}
-                <div className="">
-                  <h1 className="font-semibold text-xl mb-5">
-                    Professional Details :{" "}
-                  </h1>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:grid-cols-2">
-                    {/* 1st row */}
-
-                    {/* specialization */}
-                    <div className="form-control mb-4 space-y-3 ">
-                      <label className="font-semibold" htmlFor="specialization">
-                        Specialization
-                      </label>
-                      <Select
-                        id="specialization"
-                        name="specialization"
-                        onChange={(option) =>
-                          formik.setFieldValue("specialization", option)
-                        }
-                        value={formik.values.specialization}
-                        options={options}
-                        className="full    "
-                        styles={customStyles}
-                      />
-                      {formik.touched.specialization &&
-                        formik.errors.specialization && (
-                          <div className="text-red-500">
-                            {formik.errors.specialization}
-                          </div>
-                        )}
+                {/* End Time */}
+                <div className="form-control mb-4 space-y-3">
+                  <label className="font-semibold" htmlFor="endTime">
+                    End Time
+                  </label>
+                  <Select
+                    id="endTime"
+                    name="endTime"
+                    options={timeOptions}
+                    onChange={(option) =>
+                      formik.setFieldValue("endTime", option.value)
+                    }
+                    styles={customStyles}
+                    value={
+                      timeOptions.find(
+                        (option) => option.value === formik.values.endTime
+                      ) || null
+                    }
+                    className="full"
+                  />
+                  {formik.touched.endTime && formik.errors.endTime && (
+                    <div className="text-red-500">
+                      {formik.errors.endTime}
                     </div>
-
-                    {/* experience */}
-
-                    <div className="form-control mb-4 space-y-3 ">
-                      <label className="font-semibold" htmlFor="experience">
-                        Experience
-                      </label>
-                      <input
-                        id="experience"
-                        name="experience"
-                        type="number"
-                        min={1}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.experience}
-                        placeholder="Enter your experience year"
-                        className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
-                      />
-                      {formik.touched.experience &&
-                        formik.errors.experience && (
-                          <div className="text-red-500">
-                            {formik.errors.experience}
-                          </div>
-                        )}
-                    </div>
-
-
-{/*  fees per consultation */}
-<div className="form-control mb-4 space-y-3">
-  <label className="font-semibold" htmlFor="feesPerConsultation">
-    Fees Per Consultation
-  </label>
-  <div className="relative">
-    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
-    <input
-      id="feesPerConsultation"
-      name="feesPerConsultation"
-      type="number"
-      min={1}
-      step="1"
-      onChange={formik.handleChange}
-      onBlur={formik.handleBlur}
-      value={formik.values.feesPerConsultation}
-      placeholder="0.00"
-      className="w-full pl-7 text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300 appearance-none"
-    />
-  </div>
-  {formik.touched.feesPerConsultation && formik.errors.feesPerConsultation && (
-    <div className="text-red-500">
-      {formik.errors.feesPerConsultation}
-    </div>
-  )}
-</div>
-                    {/* second row */}
-
-
-                    <div className="form-control mb-4 space-y-3">
-        <label className="font-semibold" htmlFor="startTime">
-          Start Time
-        </label>
-        <input
-          id="startTime"
-          name="startTime"
-          type="time"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.startTime}
-          className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
-        />
-        {formik.touched.startTime && formik.errors.startTime && (
-          <div className="text-red-500">{formik.errors.startTime}</div>
-        )}
-      </div>
-
-      <div className="form-control mb-4 space-y-3">
-        <label className="font-semibold" htmlFor="endTime">
-          End Time
-        </label>
-        <input
-          id="endTime"
-          name="endTime"
-          type="time"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.endTime}
-          className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
-        />
-        {formik.touched.endTime && formik.errors.endTime && (
-          <div className="text-red-500">{formik.errors.endTime}</div>
-        )}
-      </div>
-
-
-                  </div>
+                  )}
                 </div>
-
-                <Button type="submit">Log in</Button>
-              </form>
-            </CardContent>
-          </div>
+              </div>
+            </div>
+            {error ? <p className="text-red-400">{error}</p> : ""}
+            {/* Submit Button */}
+            <div className="mt-5">
+              <Button type="submit" className="w-full">
+                Add Doctor
+              </Button>
+            </div>
+          </form> : <p className="text-red-500">loading.....</p>
+           }
+          </CardContent>
         </Card>
       </div>
     </div>

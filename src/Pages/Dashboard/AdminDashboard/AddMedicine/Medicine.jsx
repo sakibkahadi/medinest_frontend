@@ -15,6 +15,12 @@ const Medicine = () => {
             <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white ">
             <samp><FaPlus /></samp><Link to="addMedicine"> Add Medicine</Link>
             </div>
+          <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white  ">
+          <span><FaPlus /></span> <Link to="addCompany">Add Company </Link>
+            </div>
+            <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white ">
+            <samp><FaPlus /></samp><Link to="addGenericName"> Add Generic Name</Link>
+            </div>
            
           </div>
         </div>

@@ -9,9 +9,9 @@ import ForgotPassword from "@/Pages/LoginAndRegister/ForgotPassword/ForgotPasswo
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "@/Layout/Dashboard";
 import AdminHome from "@/Pages/Dashboard/AdminDashboard/AdminHome/AdminHome";
-import AllUser from "@/Pages/Dashboard/AdminDashboard/AllUsers/AllUser";
+
 import AddDoctor from "@/Pages/Dashboard/AdminDashboard/AddDoctor/AddDoctor";
-import ManageDoctors from "@/Pages/Dashboard/AdminDashboard/ManageDoctors/ManageDoctors";
+
 import AddClinic from "@/Pages/Dashboard/AdminDashboard/AddClinic/AddClinic";
 import Appointment from "@/Pages/Home/Appointment/Appointment";
 import Doctor from "@/Pages/Dashboard/AdminDashboard/AddDoctor/Doctor";
@@ -24,6 +24,30 @@ import AddAdmin from "@/Pages/Dashboard/AdminDashboard/AddAdmin/AddAdmin";
 import Medicine from "@/Pages/Dashboard/AdminDashboard/AddMedicine/Medicine";
 import MedicineList from "@/Pages/Dashboard/AdminDashboard/AddMedicine/MedicineList";
 import AddMedicine from "@/Pages/Dashboard/AdminDashboard/AddMedicine/AddMedicine";
+import AddCompany from "@/Pages/Dashboard/AdminDashboard/AddMedicine/AddCompany";
+import AddGenericName from "@/Pages/Dashboard/AdminDashboard/AddMedicine/AddGenericName";
+import UpdateMedicine from "@/Pages/Dashboard/AdminDashboard/AddMedicine/UpdateMedicine";
+
+import UserList from "@/Pages/Dashboard/AdminDashboard/AllUsers/UserList";
+import ClinicInfo from "@/Pages/Dashboard/AdminDashboard/AddClinic/ClinicInfo";
+import Department from "@/Pages/Dashboard/AdminDashboard/Department/Department";
+import DepartmentList from "@/Pages/Dashboard/AdminDashboard/Department/DepartmentList";
+import AddDepartment from "@/Pages/Dashboard/AdminDashboard/Department/AddDepartment";
+import Pharmacy from "@/Pages/Pharmacy/Pharmacy";
+import MedicineDetails from "@/Pages/Pharmacy/MedicineDetails";
+import AllClinics from "@/Pages/Clinics/AllClinics";
+import AllDoctors from "@/Pages/Doctors/AllDoctors";
+import SuperAdminDashboard from "@/Pages/Dashboard/SuperAdminDashboard/SuperAdminDashboard";
+import Ambulance from "@/Pages/Dashboard/AdminDashboard/Ambulance/Ambulance";
+import AmbulanceList from "@/Pages/Dashboard/AdminDashboard/Ambulance/AmbulanceList";
+import AddAmbulance from "@/Pages/Dashboard/AdminDashboard/Ambulance/AddAmbulance";
+import RequestedAmbulanceList from "@/Pages/Dashboard/AdminDashboard/RequestedAmbulance/RequestedAmbulanceList";
+import SuperAdmin from "@/Pages/Dashboard/AdminDashboard/SuperAdmin/SuperAdmin";
+import SuperAdminList from "@/Pages/Dashboard/AdminDashboard/SuperAdmin/SuperAdminList";
+import AddSuperAdmin from "@/Pages/Dashboard/AdminDashboard/SuperAdmin/AddSuperAdmin";
+import BloodBank from "@/Pages/Dashboard/AdminDashboard/BloodBank/BloodBank";
+import BloodList from "@/Pages/Dashboard/AdminDashboard/BloodBank/BloodList";
+import AddBlood from "@/Pages/Dashboard/AdminDashboard/BloodBank/AddBlood";
 export const router = createBrowserRouter([
     {
         path:"/",
@@ -35,6 +59,14 @@ export const router = createBrowserRouter([
                 element:<Home></Home>
             },
             {
+                path:'clinics',
+                element:<AllClinics/>
+            },
+            {
+                path:'doctors',
+                element:<AllDoctors/>
+            },
+            {
                 path: "ambulances",
                 element:
                 <PrivateRoute><Ambulances></Ambulances></PrivateRoute>,
@@ -42,6 +74,14 @@ export const router = createBrowserRouter([
             },{
                 path:"appointment",
                 element:<Appointment/>
+            },{
+                path:"pharmacy",
+                element:<Pharmacy/>,
+                
+            },{
+                path:'/pharmacy/medicines/:id',
+                element:<MedicineDetails/>,
+                loader: ({params})=> fetch(`http://localhost:5000/api/medicines/${params.id}`)
             }
             
         ]
@@ -58,18 +98,24 @@ export const router = createBrowserRouter([
     {
         path:"/forgotPassword",
         element:<ForgotPassword/>
-    },{
+    }
+    ,{
         path:'/dashboard',
         element:<Dashboard></Dashboard>,
         children:[
             {
                 path:'adminHome',
-                element:<AdminHome></AdminHome>
+                element:<SuperAdminDashboard/>
             },
             {
-                path:'allUsers',
-                element:<AllUser></AllUser>
+                path:'users',
+                element:<UserList/>,
+                
             },{
+                path:'requestedAmbulance',
+                element:<RequestedAmbulanceList/>
+            },
+            {
                 path:'dashboardDoctor',
                 element:<Doctor/>,
                 children:[
@@ -79,11 +125,32 @@ export const router = createBrowserRouter([
                     },
                     {
                         path:"doctorList",
-                        element:<DoctorList/>
+                        element:<DoctorList/>,
+                        
+                        
                     },
                     {
                         path:"addDoctor",
                         element:<AddDoctor/>
+                    },
+                ]
+            },{
+                path:'dashboardAmbulance',
+                element:<Ambulance/>,
+                children:[
+                    {
+                        path:"",
+                        element:<AmbulanceList/>
+                    },
+                    {
+                        path:"ambulanceList",
+                        element:<AmbulanceList/>,
+                        
+                        
+                    },
+                    {
+                        path:"addAmbulance",
+                        element:<AddAmbulance/>
                     },
                 ]
             }
@@ -104,6 +171,29 @@ export const router = createBrowserRouter([
                         element:<AddClinic/>
                     },
                 ]
+            },
+            {
+                path:'department',
+                element:<Department/>,
+                children:[
+                    {
+                        path:"",
+                        element:<DepartmentList/>
+                    },
+                    {
+                        path:"departmentList",
+                        element:<DepartmentList/>
+                    },
+                    {
+                        path:"addDepartment",
+                        element:<AddDepartment/>
+                    },
+                ]
+            }
+            ,
+            {
+                path:'clinicInfo',
+                element:<ClinicInfo/>
             }
             ,{
                 path:'admin',
@@ -121,6 +211,44 @@ export const router = createBrowserRouter([
                     {
                         path:"addAdmin",
                         element:<AddAdmin/>
+                    },
+                ]
+            }
+            ,{
+                path:'superAdmins',
+                element:<SuperAdmin/>,
+                children:[
+                    {
+                        path:"",
+                        element:<SuperAdminList/>
+                    },
+                    {
+                        path:"superAdminList",
+                        element:<SuperAdminList/>,
+                       
+                    },
+                    {
+                        path:"addSuperAdmin",
+                        element:<AddSuperAdmin/>
+                    },
+                ]
+            },
+            {
+                path:'bloodBank',
+                element:<BloodBank/>,
+                children:[
+                    {
+                        path:"",
+                        element:<BloodList/>
+                    },
+                    {
+                        path:"bloodList",
+                        element:<BloodList/>,
+                       
+                    },
+                    {
+                        path:"addBlood",
+                        element:<AddBlood/>
                     },
                 ]
             },
@@ -141,6 +269,17 @@ export const router = createBrowserRouter([
                         path:"addMedicine",
                         element:<AddMedicine/>
                     },
+                    {
+                        path:"addCompany",
+                        element:<AddCompany/>
+                    },
+                    {
+                        path:"addGenericName",
+                        element:<AddGenericName/>
+                    },{
+                        path:"details/:medicineId",
+                        element:<UpdateMedicine/>
+                    }
                 ]
             },
             
