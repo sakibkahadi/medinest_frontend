@@ -8,6 +8,7 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import Swal from "sweetalert2";
 
 
 const AddGenericName = () => {
@@ -51,6 +52,13 @@ const AddGenericName = () => {
           .post("/genericName/create-generic-name", info)
           .then((res) => {
             if (res.data.data) {
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Generic Name added",
+                showConfirmButton: false,
+                timer: 1500
+              });
               setErr("");
               setGenericNames([...genericNames, res.data.data]);
               formik.resetForm();
@@ -75,6 +83,13 @@ const AddGenericName = () => {
         .then((res) => {
           console.log(res.data)
           if (res.data.data) {
+            Swal.fire({
+              position: "center",
+              icon: "success",
+              title: "Generic Name updated successfully",
+              showConfirmButton: false,
+              timer: 1500
+            });
             setEditingGenericId(null);
             setEditingGenericName("");
             setGenericNames((prevGenerics) =>
@@ -101,8 +116,26 @@ const AddGenericName = () => {
       axiosSecure.delete(`/genericName/${id}`)
         .then((res) => {
           if (res.data.data) {
-            const remaining = genericNames.filter((generic) => generic._id !== id);
-            setGenericNames(remaining);
+            Swal.fire({
+              title: "Are you sure?",
+              text: "You won't be able to revert this!",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                const remaining = genericNames.filter((generic) => generic._id !== id);
+                setGenericNames(remaining);
+                Swal.fire({
+                  title: "Deleted!",
+                  text: "Generic Name has been deleted.",
+                  icon: "success"
+                });
+              }
+            });
+           
           }
         });
     } catch (err) {

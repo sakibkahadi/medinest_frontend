@@ -9,14 +9,16 @@ import Footer from "../Pages/Shared/Footer/Footer";
 
 const Main = () => {
     return (
-        <div className="space-y-12 ">
+        <div className=" ">
             <div className="bg-[#07332f] "><Navbar></Navbar></div>
         
             {/* <div className=" min-h-screen"> */}
-            <div className="max-w-screen-xl mx-auto bg-white" >
+            <div className="max-w-screen-xl mx-auto bg-white min-h-screen mb-10" >
             <Outlet/>
             </div>
+           <div className="mt-10">
            <Footer></Footer>
+           </div>
         </div>
     );
 };

@@ -32,11 +32,14 @@ const [error, setError] = useState("")
         setUserData(res.data.data); // Set userData from response
         localStorage.setItem('access-token', res.data.token)
         localStorage.setItem('userId', res.data.data._id)
+        localStorage.setItem('userEmail', res.data.data.email)
+        return signInWithEmailAndPassword(auth, email, password);
       }
+      
     } catch (err) {
-      setError(err.response.data.message);
+      setError(err.response.data.message, 'proicder');
     }
-    return signInWithEmailAndPassword(auth, email, password);
+    
   };
 
   const logOut = () => {
@@ -71,6 +74,7 @@ const [error, setError] = useState("")
         setUserData(null);
         localStorage.removeItem('access-token');
         localStorage.removeItem('userId');
+        localStorage.removeItem('userEmail');
        
       }
       setLoading(false);

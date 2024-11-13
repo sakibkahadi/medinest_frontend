@@ -6,6 +6,7 @@ import UpdateMedicine from "./UpdateMedicine";
 import { useState } from "react";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
 import useAxiosPublic from "@/Hooks/useAxiosPublic";
+import Swal from "sweetalert2";
 
 const MedicineList = () => {
   const [medicines, loading, refetch] = useMedicine();
@@ -33,16 +34,34 @@ axiosPublic.get(`/medicines/${id}`)
   };
 
   const handleDelete = (id)=>{
-    try {
-      axiosSecure.delete(`/medicines/${id}`)
-        .then((res) => {
-          if (res.data.data) {
-            refetch()
-          }
-        });
-    } catch (err) {
-      console.log(err);
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        try {
+          axiosSecure.delete(`/medicines/${id}`)
+            .then((res) => {
+              if (res.data.data) {
+                refetch()
+                Swal.fire({
+                  title: "Deleted!",
+                  text: "Your file has been deleted.",
+                  icon: "success"
+                });
+              }
+            });
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    });
+    
   }
 
   
@@ -63,7 +82,8 @@ axiosPublic.get(`/medicines/${id}`)
         <div className="p-3">
           <div className="overflow-x-hidden">
             {medicines.length > 0 ? (
-              <table className="table">
+           <div className="overflow-x-auto">
+          <table className="table table-auto w-full text-sm md:text-base">
                 {/* head */}
                 <thead>
                   <tr>
@@ -106,7 +126,7 @@ axiosPublic.get(`/medicines/${id}`)
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table> </div>
             ) : (
               <NoData />
             )}

@@ -24,7 +24,7 @@ const RequestAnAmbulance = () => {
   const axiosPublic = useAxiosPublic()
   useEffect(() => {
    
-      axiosPublic.get('http://localhost:5000/api/ambulances')
+      axiosPublic.get('https://healthcare-backend-node.vercel.app/api/ambulances')
       .then(res=>{
         
         const options = res.data.data.map(ambulance => ({
@@ -77,14 +77,30 @@ const RequestAnAmbulance = () => {
         axiosPublic.post('/requestedAmbulances', info)
         .then(res=>{
           if(res.data.success){
+            Swal.fire({
+              position: "center",
+              icon: "info",
+              title: "We will connect you soon",
+              showConfirmButton: false,
+              timer: 1500
+            });
             SetError("")
             console.log('requested')
           }
-        }).catch(err=>SetError(err.response.data.errorSources[0].message))
+        }).catch(err=>{SetError(err.response.data.errorSources[0].message)
+
+          Swal.fire({
+            position: "center",
+            icon: "error",
+            title: `${err.response.data.errorSources[0].message}`,
+            showConfirmButton: false,
+            timer: 1500
+          });
+        })
       }catch(err){
         SetError(err)
       }
-      // const res = await axios.post('http://localhost:5000/api//requestedAmbulance', formattedValues)
+      // const res = await axios.post('https://healthcare-backend-node.vercel.app/api//requestedAmbulance', formattedValues)
      
       // if(res.data.success){
       //   formik.resetForm();

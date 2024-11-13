@@ -10,6 +10,7 @@ import { CardContent } from "@/components/ui/card";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
 import useAxiosPublic from "@/Hooks/useAxiosPublic";
 import ImageUploader from "../AddMedicine/ImageUploader";
+import Swal from "sweetalert2";
 
 
 const UpdateAmbulance = ({ ambulance, onClose, refetch }) => {
@@ -86,11 +87,24 @@ const UpdateAmbulance = ({ ambulance, onClose, refetch }) => {
           .then((res) => {
             if (res.data.data) {
               refetch();
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Ambulance update  successfully",
+                showConfirmButton: false,
+                timer: 1500
+              });
               setErr("");
               console.log("update medicine");
             }
           })
-          .catch((err) => console.log(err.response.data));
+          .catch((err) => Swal.fire({
+            position: "center",
+            icon: "error",
+            title: `${err.response.data.message}`,
+            showConfirmButton: false,
+            timer: 1500
+          }));
       } catch (err) {
         setErr((err) => setErr(err.response.data.message));
       }

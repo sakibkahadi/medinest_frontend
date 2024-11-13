@@ -16,7 +16,7 @@ const ClinicCard = ({ clinic }) => {
             <div className="card-body">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="w-full h-full">
-                        <img className='rounded-lg' src={clinicImage} alt="Clinic" />
+                        <img className='rounded-lg h-96 w-full' src={clinicImage} alt="Clinic" />
                     </div>
                     <div className="px-4">
                         <h2 className="font-bold text-3xl">{clinicName}</h2>

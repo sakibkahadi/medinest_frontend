@@ -10,6 +10,7 @@ import { customStyles } from "../AddDoctor/customStyle";
 import Select from "react-select";
 import useClinic from "@/Hooks/useClinic";
 import { uploadImage } from "@/lib/imageUpload";
+import Swal from "sweetalert2";
 
 
 const AddAdmin = () => {
@@ -99,9 +100,24 @@ try{
     axiosSecure.post('/users/create-admin', info)
     .then(res=>{if(res.data.data){
       setErr("")
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Admin Created Successfully",
+        showConfirmButton: false,
+        timer: 1500
+      });
       
     }})
-    .catch((err)=>setErr(err.response.data.errorSources[0].message    ))
+    .catch((err)=>{setErr(err.response.data.errorSources[0].message    );
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: `${err.response.data.errorSources[0].message }`,
+        showConfirmButton: false,
+        timer: 1500
+      });
+    })
    }catch(err){
     setErr(err=>setErr(err.response.data.message))
    }

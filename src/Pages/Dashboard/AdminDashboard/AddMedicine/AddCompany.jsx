@@ -8,6 +8,7 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import Swal from "sweetalert2";
 
 const AddCompany = () => {
   const [err, setErr] = useState("");
@@ -51,11 +52,26 @@ const AddCompany = () => {
           .then((res) => {
             if (res.data.data) {
               setErr("");
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Company Added successfully",
+                showConfirmButton: false,
+                timer: 1500
+              });
               setProductCompany([...productCompany, res.data.data]);
               formik.resetForm();
             }
           })
-          .catch((err) => setErr(err.response.data.message));
+          .catch((err) => {setErr(err.response.data.message);
+            Swal.fire({
+              position: "center",
+              icon: "error",
+              title: `${err.response.data.message}`,
+              showConfirmButton: false,
+              timer: 1500
+            });
+          });
       } catch (err) {
         setErr(err.response.data.message);
       }
@@ -73,6 +89,13 @@ const AddCompany = () => {
       await axiosSecure.patch(`/companies/${companyId}`, { companyName: editingCompanyName })
         .then((res) => {
           if (res.data.data) {
+            Swal.fire({
+              position: "center",
+              icon: "success",
+              title: "company name updated",
+              showConfirmButton: false,
+              timer: 1500
+            });
             setEditingCompanyId(null);
             setEditingCompanyName("");
             // Update the company name in the list.
@@ -99,9 +122,26 @@ const AddCompany = () => {
    try{
     axiosSecure.delete(`/companies/${id}`)
     .then(res=>{if(res.data.data){
-      const remaining = productCompany.filter(company=>company._id !== id)
-      
-      setProductCompany(remaining)
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const remaining = productCompany.filter(company=>company._id !== id)
+          setProductCompany(remaining)
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success"
+          });
+        }
+      });
+    
     }})
    }catch(err){
 console.log(err)   }

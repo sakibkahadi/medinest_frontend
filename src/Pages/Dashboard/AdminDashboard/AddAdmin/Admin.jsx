@@ -9,10 +9,10 @@ const Admin = () => {
         <div >
           <div className=" flex items-center bg-[#099635] text-black  gap-6  h-[70px] pl-6 py-1 ">
     
-          <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white  ">
+          <div className="flex items-center gap-2 text-white py-2 px-3 text-sm md:text-lg font-semibold border-b-2 border-white  ">
           <span><TfiMenuAlt></TfiMenuAlt></span> <Link to="adminList">Admin List </Link>
             </div>
-            <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white ">
+            <div className="flex items-center gap-2 text-white py-2 px-3 text-sm md:text-lg font-semibold border-b-2 border-white ">
             <samp><FaPlus /></samp><Link to="addAdmin"> Add Admin</Link>
             </div>
            

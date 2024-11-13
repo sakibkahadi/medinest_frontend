@@ -23,7 +23,7 @@ const BloodList = () => {
      .catch((err) => setErr(err.response.data));
  }, [axiosSecure]);
 
- const bloodsByClinic = bloods.filter(blood=>blood?.clinicName._id === clinicId)
+ const bloodsByClinic = clinicId && bloods ? bloods.filter(blood => blood?.clinicName?._id === clinicId) : [];
 
 
 const [isModalOpen, setIsModalOpen] = useState(false)
@@ -50,13 +50,14 @@ const handleEditClick = (blood) => {
           {
            loading? <p className="text-red-600">loading...</p> : <div className="overflow-x-hidden">
             {bloodsByClinic.length > 0 ? (
-              <table className=" table">
+              <div className="overflow-x-auto">
+          <table className="table table-auto w-full text-sm md:text-base">
                 {/* head */}
                 <thead>
                   <tr>
                     <th>Blood Group</th>
                     <th>Quantity</th>
-                   
+                   <th>Price</th>
                    <th>Action</th>
                    
                   </tr>
@@ -68,7 +69,7 @@ const handleEditClick = (blood) => {
                     
                     <td>{blood?.bloodGroup}</td>
                     <td>{blood?.quantity}</td>
-                    
+                    <td>{blood?.price}</td>
                     <td>
                       <span onClick={() => handleEditClick(blood)}>
                         <CiEdit size={20} />
@@ -80,7 +81,7 @@ const handleEditClick = (blood) => {
                 ))}
               </tbody>: <div className="via-red-600">{err}</div>
                }
-              </table>
+              </table> </div>
             ) : (
               <NoData />
             )}

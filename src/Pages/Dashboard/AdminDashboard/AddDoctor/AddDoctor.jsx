@@ -10,6 +10,7 @@ import useAxiosPublic from "@/Hooks/useAxiosPublic";
 import { useEffect, useState } from "react";
 import { uploadImage } from "@/lib/imageUpload";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 const AddDoctor = () => {
   const axiosPublic = useAxiosPublic();
@@ -150,6 +151,13 @@ setLoading(false)
       axiosSecure.post('/users/create-doctor', info)
       .then(res=>{
         if(res.data.data){
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Doctor Created Successfully",
+            showConfirmButton: false,
+            timer: 1500
+          });
           setError("")
         }
 

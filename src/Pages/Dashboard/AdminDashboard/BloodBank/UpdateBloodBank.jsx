@@ -5,47 +5,60 @@ import { useFormik } from "formik";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
+import Swal from "sweetalert2";
+
 
 
 const UpdateBloodBank = ({ blood, onClose, refetch, loading }) => {
    
   const [err, setErr] = useState("");
 const axiosSecure = useAxiosSecure()
-// Function to handle numeric input
+
 const handleNumericInput = (e) => {
   const { name, value } = e.target;
 
-  // Only allow numbers and decimal points
-  const isValidNumber = /^[0-9]*\.?[0-9]*$/.test(value);
+
+  const isValidNumber = /^[0-9]*\.?[0-9]*$/.test(value) && (parseFloat(value) >= 1 || value === "");
 
   if (isValidNumber) {
     formik.setFieldValue(name, value);
   }
 };
+
   const formik = useFormik({
     initialValues: {
      
-      quantity:blood.quantity || ""
-     
+      quantity:blood.quantity || "",
+     price: blood.price || "",
+    clinicName: blood.clinicName._id,
+    bloodGroup:blood.bloodGroup,
+ 
     },
 
     onSubmit: async (values) => {
-      const {  quantity } = values;
+      const {  quantity,price, clinicName , bloodGroup, } = values;
 
       const info = {
-        quantity
+        quantity,price, clinicName, bloodGroup, 
       };
-      
+      console.log(info)
 
 
       try {
-        const response = await axiosSecure.patch(`/bloodBank/${blood._id}`, info);
+        const response = await axiosSecure.put(`/bloodBank/${blood._id}`, info);
         
-        // Check if response contains data and handle it
+
         if (response?.data?.data) {
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: `Update successfully`,
+            showConfirmButton: false,
+            timer: 1500
+          });
           refetch();
           setErr("");
-          onClose(); // Close the modal if the update is successful
+          onClose(); 
         } else {
           setErr("Failed to update the blood");
         }
@@ -71,7 +84,7 @@ const handleNumericInput = (e) => {
                 <div className="">
             
                   
-                  {/* Department Description */}
+                  {/* Quantity */}
                   <div className="form-control">
                     <label className="font-semibold" htmlFor="quantity">
                       Blood Quantity
@@ -79,7 +92,7 @@ const handleNumericInput = (e) => {
                     <input
                       id="quantity"
                       name="quantity"
-                      type="text"
+                      type="text" min={1}
                       onChange={handleNumericInput}
                       onBlur={formik.handleBlur}
                       value={formik.values.quantity}
@@ -88,6 +101,25 @@ const handleNumericInput = (e) => {
                     />
                     {formik.touched.quantity && formik.errors.quantity && (
                       <div className="text-red-500">{formik.errors.quantity}</div>
+                    )}
+                  </div>
+                  {/* price */}
+                  <div className="form-control">
+                    <label className="font-semibold" htmlFor="price">
+                      Blood Price
+                    </label>
+                    <input
+                      id="price"
+                      name="price"
+                      type="text"
+                      onChange={handleNumericInput}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.price}
+                      placeholder="Enter Description"
+                      className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
+                    />
+                    {formik.touched.price && formik.errors.price && (
+                      <div className="text-red-500">{formik.errors.price}</div>
                     )}
                   </div>
                 </div>

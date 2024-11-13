@@ -1,7 +1,7 @@
 import axios  from "axios";
 
 const axiosPublic = axios.create({
-    baseURL:'http://localhost:5000/api'
+    baseURL:'https://healthcare-backend-node.vercel.app/api'
 })
 
 const useAxiosPublic = ()=>{

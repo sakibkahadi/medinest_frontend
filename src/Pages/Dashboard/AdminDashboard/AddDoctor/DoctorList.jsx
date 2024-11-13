@@ -6,6 +6,7 @@ import useDoctor from "@/Hooks/useDoctor";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
+import Swal from "sweetalert2";
 
 
 const DoctorList = () => {
@@ -17,18 +18,27 @@ const [doctors, loading, refetch] = useDoctor()
   const [clinicId, setClinics] = useState([]);
   useEffect(() => {
    axiosSecure
-     .get(`/clinics/${localStorage.getItem("userId")}/admins`)
-     .then((res) => setClinics(res.data.data._id))
+     .get(`/clinics/${localStorage?.getItem("userId")}/admins`)
+     .then((res) => setClinics(res.data.data?._id))
      .catch((err) => setErr(err.response.data));
  }, [axiosSecure]);
 
 
 
-const doctorByClinic = doctors.filter(doctor=>doctor?.clinicName._id === clinicId)
-
+ const doctorByClinic = clinicId
+ ? doctors?.filter(doctor => doctor?.clinicName?._id === clinicId)
+ : [];
 
 const handleDelete = (id)=>{
-  
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!"
+  }).then((result) => {
     try {
       axiosSecure.delete(`/doctors/${id}`)
         .then((res) => {
@@ -42,29 +52,29 @@ const handleDelete = (id)=>{
     } catch (err) {
       console.log(err);
     }
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Deleted!",
+        text: "Doctor deleted successfully",
+        icon: "success"
+      });
+    }
+  });
+   
   }
 
 
   return (
     <div className="p-6">
       <div className=" border-2 border-stone-400 ">
-        <div className="p-3">
-          <label className="mr-4" htmlFor="">
-            {" "}
-            Search:
-          </label>
-          <input
-            type="text"
-            placeholder="type here"
-            className=" p-1 border-2 border-stone-400 rounded-md"
-          />
-        </div>
+        
         <div className="divider "></div>
         <div className="p-3">
           {
             err ? <p className="text-red-600">{err}</p> : <div className="overflow-x-hidden">
-            {doctorByClinic.length > 0 ? (
-              <table className=" table">
+            {doctorByClinic?.length > 0 ? (
+               <div className="overflow-x-auto">
+          <table className="table table-auto w-full text-sm md:text-base">
                 {/* head */}
                 <thead>
                   <tr>
@@ -86,13 +96,13 @@ const handleDelete = (id)=>{
                       <td>{doctor?.name}</td>
                       <td>{doctor?.email}</td>
                       <td>{doctor?.phoneNumber}</td>
-                      <td>{doctor.consultationFee} <span className="text-xl">৳</span></td>
+                      <td><div  className="flex  items-center gap-1">{doctor.consultationFee} <span className="text-xl">৳</span></div></td>
                       <td className="text-red-600"><MdDelete onClick={()=>handleDelete(doctor?._id)} size={20}/></td>
                     </tr>
                     
                   ))}
                 </tbody>
-              </table>
+              </table> </div>
             ) : (
               <NoData />
             )}

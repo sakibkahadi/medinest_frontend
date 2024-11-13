@@ -70,9 +70,9 @@ const ForgotPassword = () => {
             type="email" 
             onBlur={(e) => setEmail(e.target.value)}
             id="email"
-            placeholder="Email"   className={error ? "border-red-500" : ""}
+            placeholder="Email"   className={error ? "border-red-500" : "bg-slate-200"}
           />
-          <MdEmail className="absolute right-3" />
+          <MdEmail className="absolute  right-3" />
         </div>
         <div>
           <Button>Continue</Button>

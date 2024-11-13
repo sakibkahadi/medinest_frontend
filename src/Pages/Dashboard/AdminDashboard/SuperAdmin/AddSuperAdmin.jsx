@@ -7,6 +7,7 @@ import {  useState } from "react";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
 
 import { uploadImage } from "@/lib/imageUpload";
+import Swal from "sweetalert2";
 
 
 const AddSuperAdmin = () => {
@@ -73,10 +74,26 @@ console.log(info)
 try{
     axiosSecure.post('/users/create-superAdmin', info)
     .then(res=>{if(res.data.data){
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Super Admin Created",
+        showConfirmButton: false,
+        timer: 1500
+      });
       setErr("")
       
     }})
-    .catch((err)=>setErr(err.response.data.errorSources[0].message    ))
+    .catch((data)=>{
+      setErr(data.response.data.errorSources[0].message    )
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: `${err}`,
+        showConfirmButton: false,
+        timer: 1500
+      });
+    })
    }catch(err){
     setErr(err=>setErr(err.response.data.message))
    }

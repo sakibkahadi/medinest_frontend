@@ -9,6 +9,7 @@ import { CiEdit } from "react-icons/ci";
 import { MdDelete } from "react-icons/md";
 import UpdateAmbulance from "./UpdateAmbulance";
 import useAxiosPublic from "@/Hooks/useAxiosPublic";
+import Swal from "sweetalert2";
 
 
 const AmbulanceList = () => {
@@ -43,17 +44,34 @@ const handleEditClick = (id) => {
     };
   
     const handleDelete = (id)=>{
-      try {
-        axiosSecure.delete(`/ambulances/${id}`)
-          .then((res) => {
-            if (res.data.data) {
-              refetch()
-              console.log('deleted')
-            }
-          });
-      } catch (err) {
-        console.log(err);
-      }
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          try {
+            axiosSecure.delete(`/ambulances/${id}`)
+              .then((res) => {
+                if (res.data.data) {
+                  refetch()
+                  Swal.fire({
+                    title: "Deleted!",
+                    text: "Your file has been deleted.",
+                    icon: "success"
+                  });
+                }
+              });
+          } catch (err) {
+            console.log(err);
+          }
+        }
+      });
+      
     }
   
 
@@ -61,23 +79,14 @@ const handleEditClick = (id) => {
   return (
     <div className="p-6">
       <div className=" border-2 border-stone-400 ">
-        <div className="p-3">
-          <label className="mr-4" htmlFor="">
-            {" "}
-            Search:
-          </label>
-          <input
-            type="text"
-            placeholder="type here"
-            className=" p-1 border-2 border-stone-400 rounded-md"
-          />
-        </div>
+        
         <div className="divider "></div>
         <div className="p-3">
           {
             err ? <p className="text-red-600">{err}</p> : <div className="overflow-x-hidden">
             {ambulances.length > 0 ? (
-              <table className=" table">
+             <div className="overflow-x-auto">
+          <table className="table table-auto w-full text-sm md:text-base">
                 {/* head */}
                 <thead>
                   <tr>
@@ -104,7 +113,7 @@ const handleEditClick = (id) => {
                     
                   ))}
                 </tbody>
-              </table>
+              </table> </div>
             ) : (
               <NoData />
             )}

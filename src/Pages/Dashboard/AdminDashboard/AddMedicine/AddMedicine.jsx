@@ -10,6 +10,7 @@ import Select from "react-select";
 import { customStyles } from "../AddDoctor/customStyle";
 import { ampouleOptions, mgOptions, mlOptions, productTypesOptions } from "@/lib/Medicine";
 import { uploadImage } from "@/lib/imageUpload";
+import Swal from "sweetalert2";
 
 
 
@@ -22,6 +23,7 @@ const AddMedicine = () => {
   const [genericName, setGenericName] = useState([]);
   const [filteredPowerOptions, setFilteredPowerOptions] = useState([]);
  
+const adminId = localStorage.getItem('userId')
 
 
   // Fetch companies for the select options
@@ -172,6 +174,7 @@ const AddMedicine = () => {
 
       // Prepare the data for submission
       const info = {
+        admin:adminId,
         productName,
         productImage: imageUrl,
         productCompany: companyName.value,
@@ -187,9 +190,24 @@ const AddMedicine = () => {
       try{
         axiosSecure.post('/medicines/create-medicine', info)
         .then(res=>{if(res.data.data){
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Medicine Created Successfully",
+            showConfirmButton: false,
+            timer: 1500
+          });
           setErr("")
         }})
-        .catch((err)=>setErr(err.response.data.errorSources[0].message   ))
+        .catch((err)=>{setErr(err.response.data.errorSources[0].message   );
+          Swal.fire({
+            position: "center",
+            icon: "error",
+            title: `${err.response.data.errorSources[0].message  }`,
+            showConfirmButton: false,
+            timer: 1500
+          });
+        })
        }catch(err){
         setErr(err=>setErr(err.response.data.message))
        }
@@ -356,7 +374,7 @@ const handleNumericInput = (e) => {
                     </div>
                     {/* short Description */}
   
-                    <div className="form-control mb-4 space-y-4 ">
+                    <div className="form-control mb-4 space-y-4 md:col-span-2 ">
                       <label className="font-semibold" htmlFor="shortDescription">
                         Small details
                       </label>
@@ -379,7 +397,7 @@ const handleNumericInput = (e) => {
                     </div>
                     {/* long Description */}
   
-                    <div className="form-control mb-4 space-y-4 col-span-2 ">
+                    <div className="form-control mb-4 space-y-4 md:col-span-2 ">
                       <label className="font-semibold" htmlFor="longDescription">
                         long description
                       </label>

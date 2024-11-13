@@ -11,6 +11,7 @@ import { ampouleOptions, mgOptions, mlOptions, productTypesOptions } from "@/lib
 import { CardContent } from "@/components/ui/card";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
 import useAxiosPublic from "@/Hooks/useAxiosPublic";
+import Swal from "sweetalert2";
 
 
 
@@ -151,11 +152,26 @@ const UpdateMedicine = ({ medicine, onClose, refetch }) => {
           try{
             axiosSecure.patch(`/medicines/${medicine?._id}`, info)
             .then(res=>{if(res.data.data){
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Medicine updated successfully",
+                showConfirmButton: false,
+                timer: 1500
+              });
               refetch()
               setErr("")
               console.log('added')
             }})
-            .catch((err)=>console.log(err.response.data   ))
+            .catch((err)=>{
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: `${err.response.data.message}`,
+                showConfirmButton: false,
+                timer: 1500
+              });
+            })
            }catch(err){
             setErr(err=>setErr(err.response.data.message))
            }

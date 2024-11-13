@@ -19,10 +19,25 @@ const Dashboard = () => {
       <div className="bg-[#07332f]  ">
         <Navbar></Navbar>
       </div>
-      <div className="max-w-screen-2xl mx-auto ">
+      {logInUser && <div className="max-w-screen-2xl mx-auto ">
       <div className="lg:flex">
         <div className=" lg:w-64 lg:min-h-screen bg-green-700">
-          <ul className="lg:menu  lg:flex-none lg:gap-6 flex lg:justify-normal justify-center flex-wrap lg:flex-nowrap gap-5 p-4">
+          <ul className="lg:menu  lg:flex-none lg:gap-6 flex lg:justify-normal justify-center flex-wrap lg:flex-nowrap gap-5 p-4"> 
+          <> 
+            <li>
+                <CustomNavLink to="/dashboard/myAppointment">
+               My Appointments
+                </CustomNavLink> </li>
+                <li>
+                <CustomNavLink to="/dashboard/myCart">
+               My Cart
+                </CustomNavLink> </li>
+                {/* <li>
+                <CustomNavLink to="/dashboard/myPaymentHistory">
+               Payment History
+                </CustomNavLink> </li> */}
+            </>
+          { checking?.role === 'superAdmin' || checking?.role=== 'admin' && <div className="divider divider-primary"></div>}
             {checking?.role === 'superAdmin' ? (
               <>
               
@@ -68,7 +83,7 @@ const Dashboard = () => {
               </li>
               
               </>
-            ) : checking?.role === 'admin' && (
+            ) : checking?.role === 'admin' &&(
               <>
                    <li>
                 <CustomNavLink to="/dashboard/dashboardDoctor">
@@ -87,7 +102,7 @@ const Dashboard = () => {
                Blood Bank
                 </CustomNavLink> </li>
               </>
-            ) 
+            )  
             
           
           }
@@ -97,7 +112,8 @@ const Dashboard = () => {
             <Outlet></Outlet>
         </div>
       </div>
-      </div>
+      </div> }
+      
     </div>
   );
 };

@@ -7,18 +7,18 @@ const Medicine = () => {
     return (
         <div className="w-full  border-2 rounded-sm h-full border-stone-400 ">
         <div >
-          <div className=" flex items-center bg-[#099635] text-black  gap-6  h-[70px] pl-6 py-1 ">
+          <div className=" flex flex-wrap items-center bg-[#099635] text-black  gap-6  h-fit lg:h-[70px] pl-6 py-1 ">
     
-          <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white  ">
+          <div className="flex items-center gap-2 text-white py-2 px-3 text-sm md:text-lg font-semibold border-b-2 border-white  ">
           <span><TfiMenuAlt></TfiMenuAlt></span> <Link to="medicineList">Medicine List </Link>
             </div>
-            <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white ">
+            <div className="flex items-center gap-2 text-white py-2 px-3 text-sm md:text-lg font-semibold border-b-2 border-white ">
             <samp><FaPlus /></samp><Link to="addMedicine"> Add Medicine</Link>
             </div>
-          <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white  ">
+          <div className="flex items-center gap-2 text-white py-2 px-3 text-sm md:text-lg font-semibold border-b-2 border-white  ">
           <span><FaPlus /></span> <Link to="addCompany">Add Company </Link>
             </div>
-            <div className="flex items-center gap-2 text-white py-2 px-3 text-lg font-semibold border-b-2 border-white ">
+            <div className="flex items-center gap-2 text-white py-2 px-3 text-sm md:text-lg font-semibold border-b-2 border-white ">
             <samp><FaPlus /></samp><Link to="addGenericName"> Add Generic Name</Link>
             </div>
            

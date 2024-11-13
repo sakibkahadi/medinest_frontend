@@ -1,11 +1,11 @@
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa';
-import logo from '../../../assets/logo/logo.png'
+import logo from '../../../assets/logo/logo3.png'
 import 'daisyui/dist/full.css';
 const OurInformation = () => {
     return (
         <div className=' space-y-5'>
-            <img className='h-10 ' src={logo} alt="" />
-            <p className=' '>
+            <img className='h-20 md:h-32 ' src={logo} alt="" />
+            <p className=' spc '>
             We are on a mission to make quality healthcare affordable and accessible for the people of Bangladesh.
             </p>
             <div className='flex gap-5  items-center  '>

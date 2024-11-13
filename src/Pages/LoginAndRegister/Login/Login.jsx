@@ -14,7 +14,8 @@ import CustomTitle from "@/components/smallComponents/CustomTitle";
 import {  useFormik } from "formik";
 import { useContext, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
-import useAxiosPublic from "@/Hooks/useAxiosPublic";
+
+import Swal from "sweetalert2";
 
 const Login = () => {
   
@@ -23,7 +24,7 @@ const [serverError, setServerError] = useState("")
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from?.pathname || "/";
-const axiosPublic = useAxiosPublic()
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -51,7 +52,13 @@ const axiosPublic = useAxiosPublic()
         }
       
         
-      })
+      }).catch(err=>Swal.fire({
+        position: "center",
+        icon: "error",
+        title: `Invalid email or password`,
+        showConfirmButton: false,
+        timer: 1500
+      }))
     
       
     },

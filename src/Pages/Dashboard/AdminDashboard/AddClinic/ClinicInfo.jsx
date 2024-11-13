@@ -10,6 +10,7 @@ import { AuthContext } from "@/providers/AuthProvider";
 import MapComponent from "@/Pages/Clinics/MapContainer";
 import { uploadImage } from "@/lib/imageUpload";
 import NoData from "@/customComponents/iconComponents/NoData";
+import Swal from "sweetalert2";
 
 
 const ClinicInfo = () => {
@@ -56,7 +57,15 @@ const ClinicInfo = () => {
 
       try {
         axiosPublic.patch(`/clinics/${clinicId}/admins`, info)
-        .then(res=>console.log(res.data.data))
+        .then(res=>{if(res.data.data){
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Clinic info updated",
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }})
         .catch(err=>console.log(err))
       } catch (error) {
         console.error("Error updating clinic information:", error.response?.data || error);

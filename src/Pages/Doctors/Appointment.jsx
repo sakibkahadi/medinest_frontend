@@ -3,6 +3,7 @@ import { AuthContext } from "@/providers/AuthProvider";
 import { useContext, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Swal from "sweetalert2";
 
 // Helper function to format time as AM/PM
 const formatTime = (time) => {
@@ -36,7 +37,7 @@ const formatDate = (date) => {
   return `${day}/${month}/${year}`;
 };
 
-const Appointment = ({ _id, name, intervals }) => {
+const Appointment = ({ _id, name, intervals, price }) => {
   const [error, setError] = useState("");
   const [isBookingVisible, setIsBookingVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -62,34 +63,47 @@ const Appointment = ({ _id, name, intervals }) => {
     }
   };
 
-  let availableSlotsArray = intervals?.filter((slot) => !bookedSlots.includes(slot));
-  
+  // Filter available slots by removing booked slots
+  const availableSlotsArray = intervals?.filter((slot) => !bookedSlots.includes(slot));
 
   const handleTimeSelect = (time) => {
     setSelectedTime(time);
-    // const convertedTime = convertTo24HourFormat(time);
-    // // console.log(convertedTime); 
   };
 
   const handleBookAppointment = () => {
     if (selectedDate && selectedTime) {
       const info = {
-        doctorName: _id,
-        patientName: userData.name? userData.name : 'Human',
+        doctorName: _id, price:price,
+        patientName: userData.name || 'Human',
         patientEmail: userData?.email,
         appointmentDate: formatDate(selectedDate),
-        appointmentTime: convertTo24HourFormat(selectedTime), // Use the converted time here
+        appointmentTime: convertTo24HourFormat(selectedTime),
       };
       console.log(info);
       try {
         axiosPublic.post('/appointments/create-appointment', info)
           .then(res => {
             if (res.data.success) {
-              setError("")
-              console.log(res.data.data);
-              console.log('booked');
+              setError("");
+              Swal.fire({
+                position: "center",
+                icon: "info",
+                title: "Go my appointment page to pay",
+                showConfirmButton: false,
+                timer: 1500
+              });
             }
-          }).catch(err => setError(err.response?.data.errorSources?.[0]?.message ));
+          })
+          .catch(err => {setError(err.response?.data.errorSources?.[0]?.message)
+
+            Swal.fire({
+              position: "center",
+              icon: "error",
+              title: `${err.response?.data.errorSources?.[0]?.message}`,
+              showConfirmButton: false,
+              timer: 1500
+            });
+          });
       } catch (err) {
         console.log(err);
       }
@@ -99,7 +113,7 @@ const Appointment = ({ _id, name, intervals }) => {
   };
 
   return (
-    <div className="">
+    <div>
       {!isBookingVisible ? (
         <button
           onClick={() => setIsBookingVisible(true)}
@@ -112,7 +126,8 @@ const Appointment = ({ _id, name, intervals }) => {
           <div>
             <div className="md:mt-[-5px] flex items-center justify-center gap-5">
               <label className="font-semibold" htmlFor="date">Select Date</label>
-              <DatePicker minDate={new Date()}
+              <DatePicker
+                minDate={new Date()}
                 selected={selectedDate}
                 onChange={handleDateChange}
                 dateFormat="MMMM d, yyyy"
@@ -132,12 +147,12 @@ const Appointment = ({ _id, name, intervals }) => {
                       key={index}
                       className={`p-2 rounded-lg border ${
                         selectedTime === time
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-700"
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-gray-100 text-gray-700 border-gray-200"
                       } hover:bg-blue-500 hover:text-white`}
-                      onClick={() => handleTimeSelect(formatTime(time))} // Pass the formatted time to handleTimeSelect
+                      onClick={() => handleTimeSelect(formatTime(time))}
                     >
-                      {formatTime(time)} {/* Display in 12-hour format */}
+                      {formatTime(time)}
                     </button>
                   ))}
                 </div>
@@ -146,13 +161,16 @@ const Appointment = ({ _id, name, intervals }) => {
 
             {selectedDate && selectedTime && (
               <div className="mt-4">
+                <p className="text-md font-medium text-green-500">
+                  Selected Time: {selectedTime}
+                </p>
                 <button
                   onClick={handleBookAppointment}
-                  className="border border-blue-600 text-blue-500 hover:text-white p-2 rounded-md w-full hover:bg-blue-700"
+                  className="border border-blue-600 text-blue-500 hover:text-white p-2 rounded-md w-full hover:bg-blue-700 mt-2"
                 >
                   Confirm Appointment
                 </button>
-                {error ? <p className="text-red-500">{error}</p> : ''}
+                {error && <p className="text-red-500">{error}</p>}
               </div>
             )}
           </div>

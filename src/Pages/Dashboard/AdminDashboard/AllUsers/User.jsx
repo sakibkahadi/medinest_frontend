@@ -7,22 +7,13 @@ const User = ({users,loading, handleAction}) => {
     return (
         <div className="p-6">
       <div className=" border-2 border-stone-400 ">
-        <div className="p-3">
-          <label className="mr-4" htmlFor="">
-            {" "}
-            Search:
-          </label>
-          <input
-            type="text"
-            placeholder="type here"
-            className=" p-1 border-2 border-stone-400 rounded-md"
-          />
-        </div>
+       
         <div className="divider "></div>
         <div className="p-3">
           <div className="overflow-x-hidden">
             {!loading? (
-              <table className=" table">
+              <div className="overflow-x-auto">
+          <table className="table table-auto w-full text-sm md:text-base">
                 {/* head */}
                 <thead>
                   <tr>
@@ -30,9 +21,8 @@ const User = ({users,loading, handleAction}) => {
                     <th>Name</th>
                     
                     <th>Email</th>
-                    <th>Phone</th>
+                 
                    
-                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -43,14 +33,13 @@ const User = ({users,loading, handleAction}) => {
                       <td>{user?.name}</td>
                       
                       <td>{user?.email}</td>
-                      <td>{user?.phoneNumber}</td>
-                      <td>{user?.status}</td>
+                      
                       <td><button onClick={()=>handleAction(user?._id)} className={user?.status !== 'active' ? 'btn btn-error': 'btn btn-secondary'}>{user?.status === 'active'? 'Block' : 'Unblock'}</button></td>
                     </tr>
                     
                   ))}
                 </tbody>
-              </table>
+              </table> </div>
             ) : (
               <NoData />
             )}

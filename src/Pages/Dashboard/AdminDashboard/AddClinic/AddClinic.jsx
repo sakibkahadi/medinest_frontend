@@ -8,6 +8,7 @@ import { useFormik } from "formik";
 import ClinicMap from "./ClinicMap";
 import { useState } from "react";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 
 const AddClinic = () => {
@@ -59,8 +60,24 @@ const axiosSecure = useAxiosSecure()
       axiosSecure.post('/clinics', info)
       .then(res=>{if(res.data.data){
         setErr("")
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: `Clinic Added Successfully`,
+          showConfirmButton: false,
+          timer: 1500
+        });
       }})
-      .catch((err)=>setErr(err.response.data.errorSources[0].message))
+      .catch((err)=>{
+        setErr(err.response.data.errorSources[0].message)
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: `${err.response.data.errorSources[0].message}`,
+          showConfirmButton: false,
+          timer: 1500
+        });
+      })
      }catch(err){
       console.log(err)
      }

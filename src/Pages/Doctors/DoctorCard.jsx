@@ -16,7 +16,7 @@ const DoctorCard = ({ doctor }) => {
   const {
     _id,
     clinicName,
-    consltationFee,
+    consultationFee,
     department,
     email,
     experience,
@@ -83,7 +83,7 @@ const DoctorCard = ({ doctor }) => {
               Book Appointment for:
             </h1>
             
-            <Appointment _id={_id} intervals={intervals} name={name} />
+            <Appointment price={consultationFee} _id={_id} intervals={intervals} name={name} />
         </div>
       </div>
     </div>

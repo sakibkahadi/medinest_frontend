@@ -5,6 +5,7 @@ import WebsiteTitle from "@/customComponents/iconComponents/WebsiteTitle";
 import { useFormik } from "formik";
 import {  useState } from "react";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 
 const AddDepartment = () => {
@@ -47,7 +48,13 @@ try{
     axiosSecure.post('/departments', info)
     .then(res=>{if(res.data.data){
       setErr("")
-      console.log(res.data.data)
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: `${info.departmentName} added successfully`,
+        showConfirmButton: false,
+        timer: 1500
+      });
     }})
     .catch((err)=>setErr(err.response.data.errorSources[0].message    ))
    }catch(err){

@@ -1,9 +1,21 @@
-import { useLoaderData } from "react-router-dom";
+import useAxiosSecure from "@/Hooks/useAxiosSecure";
+import useCart from "@/Hooks/useCart";
+import { AuthContext } from "@/providers/AuthProvider";
+import { useContext } from "react";
+import { useLoaderData, useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const MedicineDetails = () => {
   let loaderData = useLoaderData();
   loaderData = loaderData?.data;
   console.log(loaderData);
+
+  const { user} = useContext(AuthContext)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const axiosSecure = useAxiosSecure()
+  const [, , refetch] = useCart()
+   
   const {
     _id,
     isAvailable,
@@ -17,26 +29,63 @@ const MedicineDetails = () => {
     genericName, shortDescription,productType, longDescription
 
   } = loaderData;
-  const productPrice = Number(stripSize)* Number(unitPrice)
+  const productPrice = Number(unitPrice) * Number(stripSize)
+  const handleAddToCart = (id)=>{
+     
+    if(user && user.email){
+      const cartItem = {
+        productId: id,
+        email:user.email,
+        
+      }
+      axiosSecure.post('/carts', cartItem)
+      .then(res=>{
+        if(res.data.success){
+
+          Swal.fire({
+  position: "center",
+  icon: "success",
+  title: "Added to cart",
+  showConfirmButton: false,
+  timer: 1500
+});refetch()
+        }
+      }).catch(err=>console.log(err.response))
+    }
+    else{
+      Swal.fire({
+        title: "You are not logged in",
+        text: "Please log in to add to the cart",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "login!",
+        timer:3000
+      }).then((result) => {
+        if (result.isConfirmed) {
+         navigate('/login', {state:{from:location}})
+        }
+      });
+    }
+    
+    
+   }
   return (
     <div className=" p-2 w-full md:w-3/4 mx-auto grid space-y-6">
-      <div className=" grid gap-5 grid-cols-1 md:grid-cols-3 ">
+      <div className=" grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <figure className=" md:col-span-2 flex gap-5 flex-col  ">
           <div className="border border-slate-200 flex gap-5 relative">
+            
             <img
-              src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
+              src={productImage}
               alt="Movie"
-              className="w-12 md:w-20 h-12 md:h-20 p-2 border m-2 "
-            />{" "}
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-              alt="Movie"
-              className=" w-full p-2  h-96"
+              className="  w-full p-2  h-96"
             />
           </div>
          
         </figure>
-        <div className="card-body text-2xl !p-5 h-full  w-full border border-slate-200">
+        <div className="card-body md:col-span-2 lg:col-span-1 text-2xl !p-5 h-full  w-full border border-slate-200">
           <div>
             <div className="space-y-2">
               <h2 className="font-bold ">{productName}</h2>
@@ -47,12 +96,8 @@ const MedicineDetails = () => {
 
             <div className="divider !h-1 !mt-[4px] !mb-[4px] "></div>
 
-            <div className="flex text-xl gap-5 pt-3 pb-3 items-center">
-              <img
-                className="w-10 h-10"
-                src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-                alt="company"
-              />{" "}
+            <div className=" text-xl  pt-3 pb-3 ">
+              
               <span>{productCompany.companyName}</span>
             </div>
             <div className="divider !h-1 !mt-[4px] !mb-[4px] "></div>
@@ -68,7 +113,7 @@ const MedicineDetails = () => {
 
           <div className="card-actions justify-end">
             {
-                isAvailable === true ? <button className="btn btn-accent">Add to Cart</button> :<p className="text-cyan-800 ">Out of Stock</p>
+                isAvailable === true ? <button onClick={()=>handleAddToCart(_id)} className="btn btn-accent" >Add to Cart</button> :<p className="text-cyan-800 ">Out of Stock</p>
             }
 
 {/* {
@@ -79,86 +124,10 @@ const MedicineDetails = () => {
         </div>
       </div>
        {/* safe or not */}
-       <div className="grid lg:grid-cols-3 gap-5">
-       <div className=" border  md:col-span-2 border-slate-200">
-            <div>
-              <h1 className="text-xl font-bold p-4">Safety Advices: {productName}</h1>
-            </div>
-            <div className="divider !h-1 !mt-[4px] !mb-[4px] "></div>
-            <div className="flex flex-col gap-5 p-2">
-              {/* 1*/}
-              <div className=" grid grid-cols-5 items-center">
-                <img
-                  src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-                  className=" size-20 rounded-full     "
-                  alt=""
-                />
-                <div className="space-y-3 col-span-4">
-                  <p className="py-2 px-5 w-20 bg-red-800 text-white rounded-lg">
-                    SAFE
-                  </p>
-                  <p>
-                    Consuming alcohol with {productName} does not cause any harmful
-                    side effects
-                  </p>
-                </div>
-              </div>
-              {/* 2 */}
-              <div className="grid grid-cols-5 items-center">
-                <img
-                  src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-                  className=" size-20 rounded-full   "
-                  alt=""
-                />
-                <div className="space-y-3 col-span-4">
-                  <p className="py-2 px-5 w-20 bg-red-800 text-white rounded-lg">
-                    SAFE
-                  </p>
-                  <p>
-                  {productName} does not usually affect your ability to drive
-                  </p>
-                </div>
-              </div>
-              
-              {/* 3 */}
-              <div className="grid grid-cols-5 items-center">
-                <img
-                  src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-                  className=" size-20 rounded-full   "
-                  alt=""
-                />
-                <div className="space-y-3 col-span-4">
-                  <p className="py-2 px-5 w-56 bg-orange-700 text-white rounded-lg">
-                    CONSULT YOUR DOCTOR
-                  </p>
-                  <p>
-                   There is limited information available on the use of {productName} in patients with kidney disease. Please consult your doctor
-                  </p>
-                </div>
-              </div>
-              {/* 4 */}
-              <div className="grid grid-cols-5 items-center">
-                <img
-                  src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-                  className=" size-20 rounded-full   "
-                  alt=""
-                />
-                <div className="space-y-3 col-span-4">
-                  <p className="py-2 px-5 w-56 bg-orange-700 text-white rounded-lg">
-                    CONSULT YOUR DOCTOR
-                  </p>
-                  <p>
-                   There is limited information available on the use of {productName} in patients with liver disease. Please consult your doctor
-                  </p>
-                </div>
-              </div>
-              
-            </div>
-          </div>
-       </div>
-         <div className="grid lg:grid-cols-3 gap-5">
+       
+         <div className="grid  lg:grid-cols-3 gap-5">
              {/* medicine info */}
-          <div className=" border md:col-span-2  border-slate-200">
+          <div className=" w-full h-full border md:col-span-2  border-slate-200">
           <div>
               <h1 className="text-l font-bold p-4">Medicine Overview of {productName} {productPower} {productType}</h1>
             </div>

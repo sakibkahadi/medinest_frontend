@@ -5,6 +5,7 @@ import { useFormik } from "formik";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 
 const UpdateDepartment = ({ department, onClose, refetch, loading }) => {
@@ -31,6 +32,13 @@ const axiosSecure = useAxiosSecure()
         
         // Check if response contains data and handle it
         if (response?.data?.data) {
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: `${info.departmentName} updated successfully`,
+            showConfirmButton: false,
+            timer: 1500
+          });
           refetch();
           setErr("");
           onClose(); // Close the modal if the update is successful

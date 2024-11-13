@@ -8,6 +8,7 @@ import Select from "react-select";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
 import { customStyles } from "../AddDoctor/customStyle";
 import useAxiosPublic from "@/Hooks/useAxiosPublic";
+import Swal from "sweetalert2";
 
 const AddBlood = () => {
   const [err, setErr] = useState("");
@@ -37,6 +38,7 @@ const axiosPublic = useAxiosPublic()
     initialValues: {
       bloodGroup: "",
       quantity: "",
+      price:""
     },
     validate: (values) => {
       const errors = {};
@@ -47,24 +49,35 @@ const axiosPublic = useAxiosPublic()
       if (!values.quantity) {
         errors.quantity = "Quantity is required";
       }
+      if (!values.price) {
+        errors.price = "price is required";
+      }
 
       return errors;
     },
     onSubmit: async (values) => {
-      const { bloodGroup, quantity } = values;
+      const { bloodGroup, quantity ,price} = values;
 
       const info = {
         clinicName:clinic,
-        bloodGroup: bloodGroup.value, // Adjusted to extract the value from the selected option
+        bloodGroup: bloodGroup.value, 
         quantity,
+        price
       };
 
-      // Uncomment and complete this block for API interaction
+      
       try {
         axiosSecure
           .post("/bloodBank/create-bloodBank", info)
           .then((res) => {
             if (res.data.data) {
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: `${info.bloodGroup} added successfully`,
+                showConfirmButton: false,
+                timer: 1500
+              });
               setErr("");
               console.log('created blood');
             }
@@ -141,6 +154,25 @@ const handleNumericInput = (e) => {
                     />
                     {formik.touched.quantity && formik.errors.quantity && (
                       <div className="text-red-500">{formik.errors.quantity}</div>
+                    )}
+                  </div>
+                  {/* Quantity */}
+                  <div className="form-control mb-4 space-y-3">
+                    <label className="font-semibold" htmlFor="price">
+                      Enter Price
+                    </label>
+                    <input
+                      id="price"
+                      name="price"
+                      type="text"
+                      onChange={handleNumericInput}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.price}
+                      placeholder="Enter price"
+                      className="w-full text-sm p-3 border bg-slate-200 border-gray-300 rounded-md focus:outline-blue-300"
+                    />
+                    {formik.touched.price && formik.errors.price && (
+                      <div className="text-red-500">{formik.errors.price}</div>
                     )}
                   </div>
                 </div>

@@ -9,7 +9,7 @@ const AllAmbulances = () => {
 const [ambulances, setAmbulances] = useState([])
 const axiosSecure = useAxiosSecure()
 useEffect(()=>{
-    axiosSecure.get(`http://localhost:5000/api/ambulances`)
+    axiosSecure.get(`https://healthcare-backend-node.vercel.app/api/ambulances`)
   .then(response => {
     setAmbulances(response.data.data);
   })

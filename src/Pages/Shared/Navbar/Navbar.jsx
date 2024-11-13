@@ -1,4 +1,4 @@
-import logo from "../../../assets/logo/logo.png";
+import logo from "../../../assets/logo/logo1.png";
 import { IoMenuOutline } from "react-icons/io5";
 import { useContext, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
@@ -6,9 +6,13 @@ import CustomNavLink from "./CustomNavLink";
 import { FaUserCircle } from "react-icons/fa";
 
 import {  IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
-import { CiLogout } from "react-icons/ci";
+import { CiLogout, CiShoppingCart } from "react-icons/ci";
+import useCart from "@/Hooks/useCart";
+import { Link } from "react-router-dom";
 const Navbar = () => {
   const { user, userData, logOut } = useContext(AuthContext);
+  const [carts] = useCart()
+ 
   const [toggle, setToggle ] = useState(false)
   const handleLogOut = () => {
     logOut()
@@ -57,6 +61,9 @@ const handleToggle = ()=>[
       <li>
         <CustomNavLink to="/ambulances">Ambulance</CustomNavLink>
       </li>
+      <li>
+        <CustomNavLink to="/bloodBanks">BloodBank</CustomNavLink>
+      </li>
 
      
 
@@ -70,9 +77,9 @@ const handleToggle = ()=>[
 
   return (
     <div className="navbar max-w-screen-xl mx-auto  ">
-      <div className="navbar-start  p-8  ">
+      <div className="navbar-start  p-8 md:p-0 ">
         <div className="hidden lg:flex ">
-          <img className="h-14" src={logo} alt="" />
+          <img className=" h-32 " src={logo} alt="" />
         </div>
         {/* drawer */}
         <div className="lg:hidden">
@@ -92,7 +99,7 @@ const handleToggle = ()=>[
               ></label>
               <ul className=" lg:static bg-blue-300 text-base-content h-full w-3/4 md:w-1/2 ">
                 <div className="flex justify-center items-center gap-1">
-                  <img className="h-14 mt-5" src={logo} alt="" />
+                  <img className="h-20 md:h-32 mt-5" src={logo} alt="" />
                 </div>
                 <span className="menu relative lg:static ">{navLinks}</span>
               </ul>
@@ -101,9 +108,7 @@ const handleToggle = ()=>[
         </div>
       </div>
       <div className="navbar-middle  p-8  ">
-        <div className="flex lg:hidden items-center gap-1">
-          <img className="h-14" src={logo} alt="" />
-        </div>
+        
         <div className="hidden lg:flex">
           <ul className="text-black font-bold flex lg:flex-col gap-10  flex-wrap justify-center  items-center  p-4">
             {navLinks}
@@ -111,10 +116,15 @@ const handleToggle = ()=>[
         </div>
       </div>
       <div className="navbar-end md:space-x-2">
-      <div className="flex gap-5 items-center justify-center">
-        <div className="text-white">
-          hi {userData?.name ? userData.name : "Unknown"}
-        </div>
+      <div className="flex gap-1 md:gap-5 items-center justify-center">
+        {
+          user && user?.email && <div className="pr-2 text-white flex items-center gap-1">
+            <Link  to="/dashboard/myCart" className="flex items-center relative">
+            <CiShoppingCart /> <span className="text-red-600 absolute -top-4 -right-2">{ carts.length>0 &&`+${carts.length}`}</span>
+            </Link>
+          
+          </div>
+        }
         <div>
           {userData?.image ? (
             <img

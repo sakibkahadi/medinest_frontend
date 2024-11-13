@@ -2,44 +2,60 @@ import NoData from "@/customComponents/iconComponents/NoData";
 import useAxiosSecure from "@/Hooks/useAxiosSecure";
 import useClinic from "@/Hooks/useClinic";
 import { MdDelete } from "react-icons/md";
+import Swal from "sweetalert2";
 
 const ClinicList = () => {
   const [clinics, loading, refetch] = useClinic();
   const axiosSecure = useAxiosSecure()
   const handleDelete = (id)=>{
-    try{
-      axiosSecure.delete(`/clinics/${id}`)
-      .then(res=>{
-        if(res.data.data){
-          refetch()
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete This Clinic!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        try{
+          axiosSecure.delete(`/clinics/${id}`)
+          .then(res=>{
+            if(res.data.data){
+              Swal.fire({
+                title: "Deleted!",
+                text: "Clinic has been deleted.",
+                icon: "success"
+              });
+              refetch()
+            }
+          })
+          .catch(err=>{
+            Swal.fire({
+              position: "center",
+              icon: "error",
+              title: `${err.response.data.errorSource[0].message}`,
+              showConfirmButton: false,
+              timer: 1500
+            });
+          })
+        }catch(err){
+          console.log(err)
         }
-      })
-      .catch(err=>{
-        console.log(err)
-      })
-    }catch(err){
-      console.log(err)
-    }
+      }
+    });
+   
   }
   return (
     <div className="p-6">
       <div className=" border-2 border-stone-400 ">
-        <div className="p-3">
-          <label className="mr-4" htmlFor="">
-            {" "}
-            Search:
-          </label>
-          <input
-            type="text"
-            placeholder="type here"
-            className=" p-1 border-2 border-stone-400 rounded-md"
-          />
-        </div>
+        
         <div className="divider "></div>
         <div className="p-3">
           <div className="overflow-x-hidden">
             {clinics.length > 0 ? (
-              <table className=" table">
+             <div className="overflow-x-auto">
+          <table className="table table-auto w-full text-sm md:text-base">
                 {/* head */}
                 <thead>
                   <tr>
@@ -65,7 +81,7 @@ const ClinicList = () => {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table> </div>
             ) : (
               <NoData />
             )}
